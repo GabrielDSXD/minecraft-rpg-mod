@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "alvorecer:arcane",
+    "alvorecer:fire",
+    "alvorecer:cold",
+    "alvorecer:lightning",
+    "alvorecer:acid",
+    "alvorecer:radiant",
+    "alvorecer:necrotic",
+    "alvorecer:nature",
+    "alvorecer:psychic"
+  ]
+}
