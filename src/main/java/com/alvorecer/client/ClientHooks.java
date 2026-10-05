@@ -22,6 +22,7 @@ public final class ClientHooks {
             case CODEX -> new CodexScreen();
             case QUEST_BOARD -> new QuestBoardScreen();
             case TALENTS -> hasCharacter ? new TalentScreen() : new CharacterCreationScreen();
+            case WORKBENCH -> new WorkbenchScreen();
         });
     }
 

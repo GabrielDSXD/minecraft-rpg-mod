@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/shield",
+  "textures": {
+    "particle": "alvorecer:item/lunar_silver_shield"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "blocking": 1
+      },
+      "model": "alvorecer:item/lunar_silver_shield_blocking"
+    }
+  ]
+}

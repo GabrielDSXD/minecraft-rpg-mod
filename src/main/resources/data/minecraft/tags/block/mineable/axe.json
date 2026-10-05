@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "alvorecer:quest_board"
+    "alvorecer:quest_board",
+    "alvorecer:profession_workbench"
   ]
 }

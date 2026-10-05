@@ -97,9 +97,9 @@ public final class Derived {
         return 1 + t(d, BonusType.HEALING);
     }
 
-    /** Multiplicador de ataque furtivo do Ladino: ×1,35 + especialização. */
+    /** Multiplicador de ataque furtivo: Ladino ×1,35; bônus de especialização/armas somam (outras classes partem de ×1). */
     public static double sneakMultiplier(PlayerRpgData d) {
-        return 1.35 + t(d, BonusType.SNEAK_ATTACK);
+        return (d.rpgClass == RpgClass.ROGUE ? 1.35 : 1.0) + t(d, BonusType.SNEAK_ATTACK);
     }
 
     /** Fração de redução de recarga (máx. 50%) e de custo (máx. 60%). */

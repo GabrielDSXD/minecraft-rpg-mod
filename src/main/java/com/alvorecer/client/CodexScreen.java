@@ -27,8 +27,8 @@ import java.util.List;
  */
 public class CodexScreen extends Screen {
     private static final int W = 420, H = 236;
-    private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "talents", "professions", "formulas",
-            "quests", "achievements", "party", "journal", "controls", "admin"};
+    private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "talents", "professions", "equipment",
+            "recipes", "formulas", "quests", "achievements", "party", "journal", "controls", "admin"};
     private static final int FORMULAS_LEVEL = 3;
     private static int chapter;
     private int scroll;
@@ -56,7 +56,7 @@ public class CodexScreen extends Screen {
                 chapter = c;
                 scroll = 0;
                 rebuildWidgets();
-            }).bounds(left() + 8, top() + 20 + i * 16, 100, 15).build());
+            }).bounds(left() + 8, top() + 19 + i * 14, 100, 13).build());
         }
         build();
     }
@@ -122,6 +122,54 @@ public class CodexScreen extends Screen {
                         var line = Component.literal("T" + t.tier() + " ").append(Component.translatable(t.nameKey()).withStyle(ChatFormatting.GOLD)).append(" - ");
                         if (t.special()) line.append(Component.translatable(t.descKey())).append(" ");
                         for (var b : t.perRank()) line.append(Ui.bonusLine(b, 1)).append(t.maxRank() > 1 ? Component.translatable("ui.alvorecer.per_rank") : Component.empty()).append(" ");
+                        out.add(line);
+                    }
+                }
+            }
+            case "equipment" -> {
+                out.add(Component.translatable("codex.alvorecer.equipment"));
+                for (var e : com.alvorecer.item.gear.GearInfo.all()) {
+                    var g = e.getValue();
+                    var stack = new net.minecraft.world.item.ItemStack(e.getKey().get());
+                    out.add(Component.empty());
+                    out.add(stack.getHoverName().copy().withStyle(g.rarity().color).append(Component.literal(" — ").withStyle(ChatFormatting.GRAY))
+                            .append(Component.translatable(g.rarity().langKey()).withStyle(ChatFormatting.GRAY))
+                            .append(Component.literal(" • ").withStyle(ChatFormatting.GRAY))
+                            .append(Component.translatable("ui.alvorecer.gear.level", g.level()).withStyle(ChatFormatting.GRAY)));
+                    var line = Component.empty();
+                    for (var b : g.bonuses()) line.append(Ui.bonusLine(b, 1)).append("  ");
+                    if (g.set() != null) line.append(Component.translatable("set.alvorecer." + g.set()).withStyle(ChatFormatting.GOLD)).append("  ");
+                    if (g.ability() != null) line.append(Component.translatable("ability.alvorecer." + g.ability()).withStyle(ChatFormatting.AQUA));
+                    if (!line.getString().isEmpty()) out.add(line);
+                }
+                for (var s : com.alvorecer.item.gear.Equipment.sets().values()) {
+                    out.add(Component.empty());
+                    var line = Component.translatable(s.nameKey()).withStyle(ChatFormatting.GOLD).append(" (4): ");
+                    for (var b : s.bonuses()) line.append(Ui.bonusLine(b, 1)).append("  ");
+                    out.add(line);
+                }
+            }
+            case "recipes" -> {
+                out.add(Component.translatable("codex.alvorecer.recipes"));
+                for (var prof : com.alvorecer.rpg.Profession.values()) {
+                    boolean header = false;
+                    for (var r : com.alvorecer.crafting.ProfessionRecipes.all().values()) {
+                        if (r.profession() != prof) continue;
+                        if (!header) {
+                            out.add(Component.empty());
+                            out.add(Component.translatable(prof.langKey()).withStyle(ChatFormatting.YELLOW));
+                            header = true;
+                        }
+                        var line = Component.literal("Nv " + r.level() + ": ").append(r.resultStack().getHoverName().copy().withStyle(ChatFormatting.GOLD))
+                                .append(r.count() > 1 ? " ×" + r.count() : "").append(" ← ");
+                        boolean first = true;
+                        for (var in : r.inputs()) {
+                            if (!first) line.append(", ");
+                            line.append(in.count() + "× ").append(in.id().startsWith("#")
+                                    ? Component.translatable("tag.item." + in.id().substring(1).replace(':', '.').replace('/', '.'))
+                                    : net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(in.id())).getDescription());
+                            first = false;
+                        }
                         out.add(line);
                     }
                 }

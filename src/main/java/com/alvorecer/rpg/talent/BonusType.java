@@ -15,7 +15,7 @@ public enum BonusType {
     COOLDOWN(true), COST(true),
     MAX_MANA(true), MAX_ENERGY(true), REGEN(true),
     MAX_HEALTH(false), HEALING(true), DAMAGE_TAKEN(true), MAGIC_RESIST(true), SPEED(true),
-    SAVE_DC(false), SNEAK_ATTACK(true);
+    SAVE_DC(false), SNEAK_ATTACK(true), JUMP(true);
 
     public final boolean percent;
 

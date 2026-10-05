@@ -24,6 +24,8 @@ public enum WeaponCategory {
     /** Itens do mod implementam {@link Categorized}; itens vanilla são classificados pelo tipo. */
     public static WeaponCategory of(ItemStack stack) {
         var item = stack.getItem();
+        var gear = com.alvorecer.item.gear.GearInfo.get(item);
+        if (gear != null && gear.category() != null) return gear.category();
         if (item instanceof Categorized c) return c.weaponCategory();
         if (item instanceof SwordItem) return SWORD;
         if (item instanceof AxeItem) return AXE;

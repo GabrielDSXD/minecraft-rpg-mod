@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/crossbow",
+  "textures": {
+    "layer0": "alvorecer:item/lunar_silver_crossbow_pulling_2"
+  }
+}

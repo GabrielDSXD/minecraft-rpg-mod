@@ -65,6 +65,9 @@ public class PlayerRpgData implements INBTSerializable<CompoundTag> {
     public double leapPower;
     @Nullable public UUID markedTarget;
     public long markedUntil;
+    /** Bônus de equipamento (recalculado ao trocar itens; não salvo). */
+    public double[] gearBonus = new double[BonusType.values().length];
+    @Nullable public net.minecraft.core.BlockPos lastWorkbenchPos;
     /** Último Mural de Missões aberto (para validar aceitar/entregar perto dele). */
     @Nullable public net.minecraft.core.BlockPos lastBoardPos;
 

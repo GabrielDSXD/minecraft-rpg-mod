@@ -14,6 +14,8 @@ public enum ArmorWeight {
 
     public static ArmorWeight of(ItemStack stack) {
         if (!(stack.getItem() instanceof ArmorItem armor)) return NONE;
+        var gear = com.alvorecer.item.gear.GearInfo.get(armor);
+        if (gear != null && gear.weight() != null) return gear.weight();
         if (armor instanceof Weighted w) return w.armorWeight();
         var mat = armor.getMaterial();
         if (mat.is(ArmorMaterials.LEATHER) || mat.is(ArmorMaterials.TURTLE)) return LIGHT;

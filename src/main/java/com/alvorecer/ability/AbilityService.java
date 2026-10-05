@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -73,15 +74,67 @@ public final class AbilityService {
         String id = abilityId(d, slot);
         if (id == null || Abilities.get(id) == null) return Failure.EMPTY_SLOT;
         if (d.level < requiredLevel(slot)) return Failure.LOCKED;
-        if (stunned) return Failure.STUNNED;
         if (bearForm && d.rpgClass == RpgClass.DRUID && slot >= 1 && slot <= SLOT_ULTIMATE && !id.equals("druid_bear_form")) {
             return Failure.BEAR_FORM;
         }
-        if (d.isOnCooldown(id, now)) return Failure.COOLDOWN;
+        return validateAbility(d, id, now, cost, stunned);
+    }
+
+    /** Checagens comuns a slots e itens: atordoamento, recarga e recurso. */
+    @Nullable
+    public static Failure validateAbility(PlayerRpgData d, String id, long now, float cost, boolean stunned) {
+        if (!d.hasCharacter()) return Failure.NO_CHARACTER;
         Ability a = Abilities.get(id);
+        if (a == null) return Failure.EMPTY_SLOT;
+        if (stunned) return Failure.STUNNED;
+        if (d.isOnCooldown(id, now)) return Failure.COOLDOWN;
         if (a.resource() == Resource.MANA && d.mana < cost) return Failure.NO_MANA;
         if (a.resource() == Resource.ENERGY && d.energy < cost) return Failure.NO_ENERGY;
         return null;
+    }
+
+    private static void report(ServerPlayer p, PlayerRpgData d, Failure f, @Nullable Ability a, String id, long now, int requiredLevel) {
+        Component msg = switch (f) {
+            case LOCKED -> Component.translatable("msg.alvorecer.locked", requiredLevel);
+            case COOLDOWN -> Component.translatable("msg.alvorecer.cooldown",
+                    Component.translatable(a.nameKey()), String.format("%.1f", d.cooldownRemaining(id, now) / 20.0));
+            default -> Component.translatable("msg.alvorecer.fail." + f.name().toLowerCase());
+        };
+        p.displayClientMessage(msg, true);
+    }
+
+    /** Executa a habilidade já validada: cobra o recurso, inicia a recarga e sincroniza. Retorna false se não havia alvo. */
+    private static boolean execute(ServerPlayer p, PlayerRpgData d, Ability a, String id, float cost, long now) {
+        double power = Derived.power(d, a.stat(), a.school());
+        if (!a.executor().run(p, d, p.serverLevel(), power)) return false;
+        if (a.resource() == Resource.MANA) d.mana -= cost;
+        else if (a.resource() == Resource.ENERGY) d.energy -= cost;
+        d.cooldowns.put(id, now + cooldown(d, a, RpgConfig.COOLDOWN_MULTIPLIER.get()));
+        d.cooldowns.values().removeIf(end -> end <= now);
+        p.syncData(ModAttachments.RPG);
+        return true;
+    }
+
+    /** Habilidade de item (cajado, varinha, arma especial). O item precisa estar na mão e o nível exigido ser atingido. */
+    public static boolean useItemAbility(ServerPlayer p, ItemStack stack, String id) {
+        PlayerRpgData d = ModAttachments.get(p);
+        Ability a = Abilities.get(id);
+        if (a == null || !p.isAlive() || p.isSpectator()) return false;
+        com.alvorecer.item.gear.GearInfo gear = com.alvorecer.item.gear.GearInfo.get(stack.getItem());
+        if (gear != null && d.hasCharacter() && d.level < gear.level()) {
+            p.displayClientMessage(Component.translatable("msg.alvorecer.gear_level", gear.level()), true);
+            return false;
+        }
+        long now = p.level().getGameTime();
+        float cost = cost(d, a, nonProficientArmor(p, d), RpgConfig.COST_MULTIPLIER.get());
+        Failure f = validateAbility(d, id, now, cost, p.hasEffect(ModEffects.STUN));
+        if (f != null) {
+            report(p, d, f, a, id, now, 0);
+            return false;
+        }
+        if (!execute(p, d, a, id, cost, now)) return false;
+        p.getCooldowns().addCooldown(stack.getItem(), cooldown(d, a, RpgConfig.COOLDOWN_MULTIPLIER.get()));
+        return true;
     }
 
     /** Peças de armadura mais pesadas do que a classe permite. */
@@ -104,22 +157,9 @@ public final class AbilityService {
         float cost = a == null ? 0 : cost(d, a, nonProficientArmor(p, d), RpgConfig.COST_MULTIPLIER.get());
         Failure f = validate(d, slot, now, cost, p.hasEffect(ModEffects.STUN), p.hasEffect(ModEffects.BEAR_FORM));
         if (f != null) {
-            Component msg = switch (f) {
-                case LOCKED -> Component.translatable("msg.alvorecer.locked", requiredLevel(slot));
-                case COOLDOWN -> Component.translatable("msg.alvorecer.cooldown",
-                        Component.translatable(a.nameKey()), String.format("%.1f", d.cooldownRemaining(id, now) / 20.0));
-                default -> Component.translatable("msg.alvorecer.fail." + f.name().toLowerCase());
-            };
-            p.displayClientMessage(msg, true);
+            report(p, d, f, a, id, now, requiredLevel(slot));
             return;
         }
-        double power = Derived.power(d, a.stat(), a.school());
-        if (!a.executor().run(p, d, p.serverLevel(), power)) return;
-        if (a.resource() == Resource.MANA) d.mana -= cost;
-        else if (a.resource() == Resource.ENERGY) d.energy -= cost;
-        d.cooldowns.put(id, now + cooldown(d, a, RpgConfig.COOLDOWN_MULTIPLIER.get()));
-        d.cooldowns.values().removeIf(end -> end <= now);
-        if (slot == SLOT_ULTIMATE) com.alvorecer.achievement.Achievements.grant(p, "first_ultimate");
-        p.syncData(ModAttachments.RPG);
+        if (execute(p, d, a, id, cost, now) && slot == SLOT_ULTIMATE) com.alvorecer.achievement.Achievements.grant(p, "first_ultimate");
     }
 }

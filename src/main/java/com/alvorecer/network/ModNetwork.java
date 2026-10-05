@@ -43,7 +43,7 @@ public final class ModNetwork {
 
     // ------------------------------------------------------------ S2C
 
-    public enum Screen { CREATION, SHEET, CODEX, QUEST_BOARD, TALENTS }
+    public enum Screen { CREATION, SHEET, CODEX, QUEST_BOARD, TALENTS, WORKBENCH }
 
     public record OpenScreen(int screen) implements CustomPacketPayload {
         public static final Type<OpenScreen> TYPE = typeOf("open_screen");
@@ -153,6 +153,16 @@ public final class ModNetwork {
         }
     }
 
+    public record CraftRecipe(String id) implements CustomPacketPayload {
+        public static final Type<CraftRecipe> TYPE = typeOf("craft_recipe");
+        public static final StreamCodec<ByteBuf, CraftRecipe> CODEC = ByteBufCodecs.stringUtf8(64).map(CraftRecipe::new, CraftRecipe::id);
+
+        @Override
+        public Type<CraftRecipe> type() {
+            return TYPE;
+        }
+    }
+
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar r = event.registrar("1");
         r.playToClient(OpenScreen.TYPE, OpenScreen.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.openScreen(msg.screen()));
@@ -171,6 +181,7 @@ public final class ModNetwork {
                 default -> { }
             }
         });
+        r.playToServer(CraftRecipe.TYPE, CraftRecipe.CODEC, (msg, ctx) -> com.alvorecer.crafting.ProfessionRecipes.craft((ServerPlayer) ctx.player(), msg.id()));
         r.playToClient(PartySync.TYPE, PartySync.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.party(msg.members()));
     }
 

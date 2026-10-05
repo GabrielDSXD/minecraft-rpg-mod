@@ -295,6 +295,8 @@ add("codex.alvorecer.admin",
 sys.path.insert(0, os.path.dirname(__file__))
 import lang_stage2  # noqa: E402
 lang_stage2.register(add)
+import lang_stage3  # noqa: E402
+lang_stage3.register(add)
 
 os.makedirs(ROOT, exist_ok=True)
 for name in ("pt_br.json", "en_us.json"):

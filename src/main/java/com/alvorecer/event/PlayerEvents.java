@@ -89,7 +89,7 @@ public final class PlayerEvents {
 
     @SubscribeEvent
     public static void onEquipment(LivingEquipmentChangeEvent event) {
-        if (event.getEntity() instanceof ServerPlayer p && event.getSlot().isArmor()) StatApplier.apply(p);
+        if (event.getEntity() instanceof ServerPlayer p) StatApplier.apply(p);
     }
 
     @SubscribeEvent

@@ -114,7 +114,8 @@ public final class CombatEvents {
             }
             if (p.hasEffect(ModEffects.ORC_FURY)) m *= 1.3;
             if (p.hasEffect(ModEffects.BARBARIAN_RAGE)) m *= 1.2;
-            if (d.rpgClass == RpgClass.ROGUE && target instanceof Mob mob && mob.getTarget() != p) m *= Derived.sneakMultiplier(d);
+            if (target instanceof Mob mob && mob.getTarget() != p) m *= Derived.sneakMultiplier(d);
+            if (!com.alvorecer.item.gear.Equipment.meets(d, com.alvorecer.item.gear.Equipment.gear(weapon))) m *= 0.5;
             if (d.hasTalent("rogue_assassinate") && target.getHealth() >= target.getMaxHealth()) m *= 1.5;
             if (p.hasEffect(ModEffects.POISON_BLADES)) target.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 1), p);
             if (d.rpgClass == RpgClass.WARRIOR) d.energy = Math.min(Derived.maxEnergy(d), d.energy + 3);
@@ -124,6 +125,8 @@ public final class CombatEvents {
                     : WeaponCategory.of(p.getOffhandItem());
             if (held != WeaponCategory.NONE && !d.rpgClass.proficient(held)) m *= 0.75;
             if (d.race == Race.ELF && held == WeaponCategory.BOW) m *= 1.1;
+            ItemStack bow = cat == WeaponCategory.BOW || cat == WeaponCategory.CROSSBOW ? weapon : p.getOffhandItem();
+            if (!com.alvorecer.item.gear.Equipment.meets(d, com.alvorecer.item.gear.Equipment.gear(bow))) m *= 0.5;
         }
 
         if (d.markedTarget != null && d.markedTarget.equals(target.getUUID()) && p.level().getGameTime() < d.markedUntil) {

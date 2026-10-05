@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "alvorecer:item/aurorite_bow_pulling_2"
+  }
+}

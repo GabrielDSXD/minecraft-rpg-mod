@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "alvorecer:lunar_silver_block"
+    }
+  ],
+  "result": {
+    "id": "alvorecer:lunar_silver_ingot",
+    "count": 9
+  }
+}

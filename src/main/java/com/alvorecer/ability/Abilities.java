@@ -180,6 +180,73 @@ public final class Abilities {
         registerDruid();
         registerBard();
         registerProfessions();
+        registerItems();
+    }
+
+    /** Habilidades de itens (cajados, varinhas e armas especiais): usadas com o botão direito. */
+    public static final List<String> ITEM_ABILITIES = List.of("staff_arcane_bolt", "wand_bolt", "item_solar_wave", "item_dawn_dash", "item_shadow_evasion");
+
+    private static void registerItems() {
+        reg("staff_arcane_bolt", Resource.MANA, 4, 0.8, School.ARCANE, Stat.INT, false, (p, d, level, power) -> {
+            LivingEntity t = raycast(p, 24, false);
+            if (t == null) return fail(p, "no_target");
+            line(level, ParticleTypes.END_ROD, p.getEyePosition().subtract(0, 0.3, 0), chest(t), 0.5);
+            damage(t, spell(p, ModDamageTypes.ARCANE), (float) (4 * power));
+            sound(level, p.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 0.8f, 1.8f);
+            return true;
+        });
+
+        reg("wand_bolt", Resource.MANA, 3, 0.6, School.ARCANE, Stat.INT, false, (p, d, level, power) -> {
+            LivingEntity t = raycast(p, 18, false);
+            if (t == null) return fail(p, "no_target");
+            line(level, ParticleTypes.WITCH, p.getEyePosition().subtract(0, 0.3, 0), chest(t), 0.4);
+            damage(t, spell(p, ModDamageTypes.ARCANE), (float) (3 * power));
+            sound(level, p.position(), SoundEvents.AMETHYST_BLOCK_RESONATE, 0.6f, 2.0f);
+            return true;
+        });
+
+        reg("item_solar_wave", Resource.ENERGY, 30, 10, School.DIVINE, Stat.STR, false, (p, d, level, power) -> {
+            Vec3 dir = horizontalLook(p);
+            Vec3 side = new Vec3(-dir.z, 0, dir.x);
+            Vec3 start = p.position().add(0, 0.6, 0);
+            Set<UUID> hit = new HashSet<>();
+            sound(level, p.position(), SoundEvents.BEACON_ACTIVATE, 1f, 1.6f);
+            sound(level, p.position(), SoundEvents.GENERIC_EXPLODE.value(), 0.6f, 1.8f);
+            for (int step = 1; step <= 7; step++) {
+                Vec3 center = start.add(dir.scale(step * 2.0));
+                Scheduler.after(step, () -> {
+                    if (p.isRemoved()) return;
+                    line(level, ParticleTypes.END_ROD, center.subtract(side.scale(1.8)), center.add(side.scale(1.8)), 0.3);
+                    level.sendParticles(ParticleTypes.FLASH, center.x, center.y, center.z, 1, 0, 0, 0, 0);
+                    for (LivingEntity t : enemiesAround(p, center, 2.0)) {
+                        if (hit.add(t.getUUID())) {
+                            damage(t, spell(p, ModDamageTypes.RADIANT), (float) (10 * power * (isUndead(t) ? 2 : 1)));
+                            t.knockback(0.8, -dir.x, -dir.z);
+                        }
+                    }
+                });
+            }
+            return true;
+        });
+
+        reg("item_dawn_dash", Resource.ENERGY, 20, 6, School.PHYSICAL, Stat.STR, true, (p, d, level, power) -> {
+            sound(level, p.position(), SoundEvents.TRIDENT_RIPTIDE_1.value(), 1f, 1.4f);
+            float dmg = (float) (weapon(p) * 0.8 * power);
+            charge(p, d, 2.0, 8, ParticleTypes.END_ROD, t -> {
+                damage(t, physical(p), dmg);
+                level.sendParticles(ParticleTypes.FLASH, t.getX(), t.getY() + 1, t.getZ(), 1, 0, 0, 0, 0);
+            });
+            return true;
+        });
+
+        reg("item_shadow_evasion", Resource.ENERGY, 15, 12, School.PHYSICAL, Stat.DEX, true, (p, d, level, power) -> {
+            p.addEffect(fx(ModEffects.EVASION, 40, 0));
+            p.addEffect(fx(MobEffects.INVISIBILITY, 40, 0));
+            level.sendParticles(ParticleTypes.LARGE_SMOKE, p.getX(), p.getY() + 1, p.getZ(), 25, 0.4, 0.6, 0.4, 0.02);
+            launch(p, d, horizontalLook(p).scale(-1.0).add(0, 0.3, 0));
+            sound(level, p.position(), SoundEvents.ILLUSIONER_MIRROR_MOVE, 1f, 0.8f);
+            return true;
+        });
     }
 
     // ================================================================= RAÇAS

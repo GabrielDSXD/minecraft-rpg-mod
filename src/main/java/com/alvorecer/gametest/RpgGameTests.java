@@ -2,9 +2,9 @@ package com.alvorecer.gametest;
 
 import com.alvorecer.Alvorecer;
 import com.alvorecer.ability.AbilityService;
+import com.alvorecer.rpg.Derived;
 import com.alvorecer.network.ModNetwork;
 import com.alvorecer.registry.ModAttachments;
-import com.alvorecer.rpg.Derived;
 import com.alvorecer.rpg.Element;
 import com.alvorecer.rpg.PlayerRpgData;
 import com.alvorecer.rpg.Profession;
@@ -226,6 +226,74 @@ public class RpgGameTests {
         h.assertTrue(d.completedQuests.containsKey("zombie_hunt") && !d.activeQuests.containsKey("zombie_hunt"), "missão concluída");
         h.assertTrue(d.achievements.contains("first_quest"), "conquista da primeira missão");
         h.assertFalse(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "diária em espera");
+        leave(h, p);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena")
+    public static void gearBonusesRespectLevelAndSets(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        float baseMax = p.getMaxHealth();
+        var armor = com.alvorecer.registry.ModGear.AURORITE_ARMOR;
+        net.minecraft.world.entity.EquipmentSlot[] slots = {net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+                net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+        for (int i = 0; i < 4; i++) p.setItemSlot(slots[i], new ItemStack(armor[i].get()));
+        StatApplier.apply(p);
+        h.assertTrue(p.getMaxHealth() == baseMax, "nível 1 não recebe bônus de equipamento de nível 12");
+        d.level = 12;
+        StatApplier.apply(p);
+        h.assertTrue(Math.abs(p.getMaxHealth() - (20 + Derived.bonusHealth(d))) < 1e-3, "vida máxima com equipamento");
+        h.assertTrue(com.alvorecer.item.gear.Equipment.setPieces(p, d, "aurorite") == 4, "conjunto completo");
+        h.assertTrue(Derived.damageReduction(d) >= 0.1 - 1e-9, "bônus de conjunto: -10% de dano");
+        p.setItemSlot(slots[0], ItemStack.EMPTY);
+        StatApplier.apply(p);
+        h.assertTrue(Derived.damageReduction(d) < 0.1 - 1e-9, "sem a 4ª peça o bônus de conjunto some");
+        leave(h, p);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 60)
+    public static void specialWeaponAbilityIsValidated(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.PALADIN, new Vec3(3.5, 1, 1.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        ItemStack breaker = new ItemStack(com.alvorecer.registry.ModGear.SOLAR_BREAKER.get());
+        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, breaker);
+        Zombie zombie = zombie(h, 3.5, 5.5);
+        float energy = d.energy;
+        h.assertFalse(AbilityService.useItemAbility(p, breaker, "item_solar_wave"), "nível 1 não pode usar a Ruptora Solar");
+        h.assertTrue(d.energy == energy, "nada cobrado");
+        d.level = 15;
+        d.energy = com.alvorecer.rpg.Derived.maxEnergy(d);
+        h.assertTrue(AbilityService.useItemAbility(p, breaker, "item_solar_wave"), "nível 15 usa a habilidade");
+        h.assertTrue(p.getCooldowns().isOnCooldown(breaker.getItem()), "recarga visual no item");
+        h.assertFalse(AbilityService.useItemAbility(p, breaker, "item_solar_wave"), "em recarga");
+        h.runAfterDelay(12, () -> {
+            h.assertTrue(zombie.getHealth() < zombie.getMaxHealth(), "a onda deve atingir o zumbi a 4 blocos");
+            leave(h, p);
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena")
+    public static void workbenchCraftingRequiresProfession(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.DWARF, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        BlockPos bench = new BlockPos(1, 1, 1);
+        h.setBlock(bench, com.alvorecer.registry.ModGear.WORKBENCH.get());
+        d.lastWorkbenchPos = h.absolutePos(bench);
+        p.getInventory().add(new ItemStack(com.alvorecer.registry.ModGear.AURORITE_SHARD.get(), 4));
+        d.professionLevel = 4;
+        h.assertFalse(com.alvorecer.crafting.ProfessionRecipes.craft(p, "aurorite_cutting"), "Minerador nível 4 não lapida");
+        d.professionLevel = 5;
+        long xp = d.professionXp;
+        h.assertTrue(com.alvorecer.crafting.ProfessionRecipes.craft(p, "aurorite_cutting"), "Minerador nível 5 lapida");
+        h.assertTrue(p.getInventory().countItem(com.alvorecer.registry.ModGear.AURORITE_GEM.get()) == 1, "gema criada");
+        h.assertTrue(p.getInventory().countItem(com.alvorecer.registry.ModGear.AURORITE_SHARD.get()) == 2, "2 fragmentos consumidos");
+        h.assertTrue(d.professionXp > xp || d.professionLevel > 5, "XP de profissão concedido");
+        h.assertFalse(com.alvorecer.crafting.ProfessionRecipes.craft(p, "mana_elixir"), "sem a profissão Alquimista");
+        d.lastWorkbenchPos = null;
+        h.assertFalse(com.alvorecer.crafting.ProfessionRecipes.craft(p, "aurorite_cutting"), "longe da bancada");
         leave(h, p);
         h.succeed();
     }

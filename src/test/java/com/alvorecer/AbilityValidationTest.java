@@ -37,6 +37,7 @@ class AbilityValidationTest {
             ids.addAll(c.abilities);
         }
         for (Profession p : Profession.values()) ids.add(p.abilityId);
+        ids.addAll(Abilities.ITEM_ABILITIES);
         for (String id : ids) assertNotNull(Abilities.get(id), "habilidade sem implementação: " + id);
         assertEquals(ids.size(), Abilities.all().size(), "habilidade registrada que nada usa");
     }

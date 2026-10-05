@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "alvorecer:item/lunar_silver_bow_pulling_2"
+  }
+}

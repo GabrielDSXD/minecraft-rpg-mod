@@ -12,6 +12,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import com.alvorecer.rpg.talent.BonusType;
+import com.alvorecer.rpg.talent.Talents;
 
 /**
  * Converte a ficha em modificadores de atributo vanilla. Os modificadores são permanentes (salvos com o jogador) para
@@ -34,6 +36,7 @@ public final class StatApplier {
     }
 
     public static void apply(ServerPlayer p) {
+        com.alvorecer.item.gear.Equipment.refresh(p);
         PlayerRpgData d = ModAttachments.get(p);
         boolean has = d.hasCharacter();
         Race race = has ? d.race : null;
@@ -49,6 +52,7 @@ public final class StatApplier {
 
         set(p, Attributes.ENTITY_INTERACTION_RANGE, "reach", race == Race.HALFLING ? -0.5 : 0, Operation.ADD_VALUE);
         set(p, Attributes.SNEAKING_SPEED, "sneak", race == Race.HALFLING ? 0.15 : 0, Operation.ADD_VALUE);
+        set(p, Attributes.JUMP_STRENGTH, "jump", has ? Talents.bonus(d, BonusType.JUMP) : 0, Operation.ADD_MULTIPLIED_BASE);
         set(p, Attributes.SAFE_FALL_DISTANCE, "fall", race == Race.HALFLING || race == Race.ELF ? 1 : 0, Operation.ADD_VALUE);
 
         double mining = (race == Race.DWARF ? 0.2 : 0) + 0.02 * Abilities.professionLevel(d, Profession.MINER);

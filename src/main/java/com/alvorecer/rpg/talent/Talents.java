@@ -217,9 +217,9 @@ public final class Talents {
         return true;
     }
 
-    /** Soma de um tipo de bônus de todos os talentos e da especialização. */
+    /** Soma de um tipo de bônus de talentos, especialização e equipamento. */
     public static double bonus(PlayerRpgData d, BonusType type) {
-        double sum = 0;
+        double sum = d.gearBonus[type.ordinal()];
         for (var e : d.talents.entrySet()) {
             Talent t = TALENTS.get(e.getKey());
             if (t == null || t.rpgClass() != d.rpgClass) continue;
