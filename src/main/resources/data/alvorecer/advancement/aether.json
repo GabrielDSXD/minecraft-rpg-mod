@@ -1,0 +1,23 @@
+{
+  "parent": "alvorecer:portal",
+  "display": {
+    "icon": {
+      "id": "alvorecer:dawnstone"
+    },
+    "title": {
+      "translate": "advancement.alvorecer.aether"
+    },
+    "description": {
+      "translate": "advancement.alvorecer.aether.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

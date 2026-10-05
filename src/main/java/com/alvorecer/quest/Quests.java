@@ -61,6 +61,7 @@ public final class Quests {
         q("first_steps", Category.EXPLORATION, 1, Objective.BIOMES, "", 5, 150, 0, false, item("minecraft:map", 1));
         q("wanderer", Category.EXPLORATION, 5, Objective.BIOMES, "", 15, 600, 0, false, item("minecraft:spyglass", 1));
         q("into_the_nether", Category.EXPLORATION, 5, Objective.VISIT_DIMENSION, "minecraft:the_nether", 1, 400, 0, false, item("minecraft:fire_charge", 4));
+        q("into_the_aether", Category.EXPLORATION, 8, Objective.VISIT_DIMENSION, "alvorecer:aether_realms", 1, 1200, 0, false, item("alvorecer:aurorite_gem", 2));
         q("the_end", Category.EXPLORATION, 15, Objective.VISIT_DIMENSION, "minecraft:the_end", 1, 2000, 0, false, item("minecraft:ender_pearl", 4));
         // Coleta (entrega no mural)
         q("lumber", Category.GATHERING, 1, Objective.GATHER, "#minecraft:logs", 32, 100, 30, true, item("minecraft:emerald", 1));

@@ -84,6 +84,7 @@ public final class PlayerEvents {
         if (event.getEntity() instanceof ServerPlayer p) {
             refresh(p);
             Quests.onDimension(p, event.getTo());
+            if (event.getTo() == com.alvorecer.registry.ModWorld.AETHER) Achievements.grant(p, "aether");
         }
     }
 

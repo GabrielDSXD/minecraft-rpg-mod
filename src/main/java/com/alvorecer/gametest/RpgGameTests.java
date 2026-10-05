@@ -398,6 +398,85 @@ public class RpgGameTests {
         h.succeed();
     }
 
+    /** Moldura 4×5 (interior 2×3) no plano X, de x=1 a 4, em z=3, base em y=2. */
+    private static void portalFrame(GameTestHelper h) {
+        var stone = com.alvorecer.registry.ModWorld.DAWNSTONE.get();
+        for (int x = 1; x <= 4; x++) {
+            h.setBlock(x, 2, 3, stone);
+            h.setBlock(x, 6, 3, stone);
+        }
+        for (int y = 3; y <= 5; y++) {
+            h.setBlock(1, y, 3, stone);
+            h.setBlock(4, y, 3, stone);
+        }
+    }
+
+    private static net.minecraft.world.InteractionResult useKey(GameTestHelper h, ServerPlayer p, ItemStack key) {
+        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, key);
+        BlockPos clicked = h.absolutePos(new BlockPos(2, 2, 3));
+        var hit = new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(clicked), net.minecraft.core.Direction.UP, clicked, false);
+        return key.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit));
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 40)
+    public static void dawnKeyLightsAndFrameBreakClosesPortal(GameTestHelper h) {
+        var portal = com.alvorecer.registry.ModWorld.DAWN_PORTAL.get();
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(2.5, 2, 1.5));
+        p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL); // em criativo a chave não gasta
+        portalFrame(h);
+        h.setBlock(4, 4, 3, Blocks.AIR);
+        ItemStack key = new ItemStack(com.alvorecer.registry.ModWorld.DAWN_KEY.get());
+        h.assertTrue(useKey(h, p, key) == net.minecraft.world.InteractionResult.FAIL, "moldura incompleta não acende");
+        h.assertBlockNotPresent(portal, new BlockPos(2, 3, 3));
+        h.setBlock(4, 4, 3, com.alvorecer.registry.ModWorld.DAWNSTONE.get());
+        h.assertTrue(useKey(h, p, key).consumesAction(), "moldura completa acende");
+        for (int x = 2; x <= 3; x++) for (int y = 3; y <= 5; y++) h.assertBlockPresent(portal, new BlockPos(x, y, 3));
+        h.assertTrue(key.getDamageValue() == 1, "a chave gasta 1 de durabilidade");
+        h.assertTrue(ModAttachments.get(p).achievements.contains("portal"), "conquista do portal");
+        leave(h, p);
+        // O POI é registrado no tick seguinte; depois disso a busca de destino encontra este portal
+        h.runAfterDelay(2, () -> {
+            var found = com.alvorecer.world.PortalTravel.findPortal(h.getLevel(), h.absolutePos(new BlockPos(3, 4, 1)));
+            h.assertTrue(found.isPresent() && found.get().getY() == h.absolutePos(new BlockPos(2, 3, 3)).getY()
+                    && h.getLevel().getBlockState(found.get()).is(portal), "base do portal achada pelo POI: " + found);
+            h.setBlock(1, 4, 3, Blocks.AIR);
+            for (int x = 2; x <= 3; x++) for (int y = 3; y <= 5; y++) h.assertBlockNotPresent(portal, new BlockPos(x, y, 3));
+            h.succeed();
+        });
+    }
+
+    /** O servidor de GameTest usa um mundo plano sem dimensões de datapack; a viagem real é validada no servidor dedicado. */
+    @GameTest(template = "arena", timeoutTicks = 40)
+    public static void returnPortalIsBuiltOnSolidGround(GameTestHelper h) {
+        var level = h.getLevel();
+        BlockPos portal = com.alvorecer.world.PortalTravel.buildPortal(level, h.absolutePos(new BlockPos(3, 2, 3)));
+        var shape = com.alvorecer.world.PortalShape.find(level, portal);
+        h.assertTrue(shape != null && shape.width() == 2 && shape.height() == 3 && shape.bottomLeft().equals(portal), "moldura 2×3 válida: " + shape);
+        h.assertTrue(level.getBlockState(portal).is(com.alvorecer.registry.ModWorld.DAWN_PORTAL.get()), "portal aceso");
+        BlockPos exit = com.alvorecer.world.PortalTravel.exit(level, portal);
+        h.assertTrue(exit.equals(portal.south().below()) && level.getBlockState(exit.below()).is(com.alvorecer.registry.ModWorld.DAWNSTONE.get()),
+                "saída ao lado do portal, em pé na plataforma: " + exit);
+        h.runAfterDelay(2, () -> {
+            var found = com.alvorecer.world.PortalTravel.findPortal(level, portal.offset(5, 2, 5));
+            h.assertTrue(found.isPresent() && found.get().getY() == portal.getY() && found.get().distManhattan(portal) <= 1,
+                    "a próxima viagem reutiliza o portal: " + found);
+            h.succeed();
+        });
+    }
+
+    /** Destino em chunk ainda não gerado: a altura vem do gerador, não do fallback no ar (y=100). */
+    @GameTest(template = "arena")
+    public static void returnPortalUsesTerrainInUnloadedChunks(GameTestHelper h) {
+        var level = h.getLevel();
+        BlockPos far = h.absolutePos(new BlockPos(3, 2, 3)).offset(4000, 0, 4000);
+        h.assertFalse(level.hasChunk(far.getX() >> 4, far.getZ() >> 4), "chunk de destino ainda não carregado");
+        BlockPos portal = com.alvorecer.world.PortalTravel.buildPortal(level, far);
+        int ground = level.getChunkSource().getGenerator().getBaseHeight(far.getX(), far.getZ(),
+                net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, level, level.getChunkSource().randomState());
+        h.assertTrue(portal.getY() == ground + 1, "portal no chão do terreno (" + ground + "), não no ar: " + portal);
+        h.succeed();
+    }
+
     private static final class StoneSentinelEntityTicks {
         static final int WINDUP = com.alvorecer.entity.mob.StoneSentinelEntity.SLAM_WINDUP;
     }

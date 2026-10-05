@@ -1,0 +1,75 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.6,
+  "downfall": 0.3,
+  "effects": {
+    "sky_color": 11069183,
+    "fog_color": 14742783,
+    "water_color": 5227511,
+    "water_fog_color": 736604,
+    "grass_color": 10148808,
+    "foliage_color": 8374704,
+    "particle": {
+      "options": {
+        "type": "minecraft:white_ash"
+      },
+      "probability": 0.01
+    }
+  },
+  "spawners": {
+    "monster": [
+      {
+        "type": "alvorecer:elemental",
+        "weight": 40,
+        "minCount": 1,
+        "maxCount": 1
+      },
+      {
+        "type": "alvorecer:stone_sentinel",
+        "weight": 10,
+        "minCount": 1,
+        "maxCount": 1
+      },
+      {
+        "type": "alvorecer:wyrmling",
+        "weight": 15,
+        "minCount": 1,
+        "maxCount": 1
+      }
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [
+      "minecraft:amethyst_geode"
+    ],
+    [],
+    [],
+    [],
+    [
+      "alvorecer:aether_lunar_silver_ore",
+      "alvorecer:aether_aurorite_ore",
+      "minecraft:ore_iron_upper",
+      "minecraft:ore_coal_upper",
+      "alvorecer:aether_aurorite_ore_rich"
+    ],
+    [],
+    [],
+    [
+      "minecraft:patch_grass_plain"
+    ],
+    [
+      "minecraft:freeze_top_layer"
+    ]
+  ]
+}

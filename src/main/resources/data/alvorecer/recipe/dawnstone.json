@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    "SGS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "G": {
+      "item": "alvorecer:aurorite_gem"
+    }
+  },
+  "result": {
+    "id": "alvorecer:dawnstone",
+    "count": 8
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "alvorecer:template",
+  "biomes": "#alvorecer:has_structure/sky_arena",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none",
+  "template": "alvorecer:sky_arena",
+  "kind": "arena",
+  "y_offset": -1
+}

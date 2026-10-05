@@ -1,0 +1,67 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.9,
+  "downfall": 0.2,
+  "effects": {
+    "sky_color": 16765850,
+    "fog_color": 16769720,
+    "water_color": 5227511,
+    "water_fog_color": 736604,
+    "grass_color": 13222522,
+    "foliage_color": 11577438
+  },
+  "spawners": {
+    "monster": [
+      {
+        "type": "alvorecer:skeleton_warrior",
+        "weight": 50,
+        "minCount": 1,
+        "maxCount": 2
+      },
+      {
+        "type": "alvorecer:wyrmling",
+        "weight": 20,
+        "minCount": 1,
+        "maxCount": 1
+      },
+      {
+        "type": "alvorecer:goblin",
+        "weight": 30,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "alvorecer:aether_lunar_silver_ore",
+      "alvorecer:aether_aurorite_ore",
+      "minecraft:ore_iron_upper",
+      "minecraft:ore_coal_upper"
+    ],
+    [],
+    [],
+    [
+      "minecraft:trees_plains",
+      "minecraft:patch_dead_bush"
+    ],
+    [
+      "minecraft:freeze_top_layer"
+    ]
+  ]
+}

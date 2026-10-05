@@ -42,6 +42,7 @@ public final class RpgConfig {
 
     public static final ModConfigSpec.IntValue MAX_ACTIVE_QUESTS;
     public static final ModConfigSpec.DoubleValue CREATURE_SPAWN_RATE;
+    private static final java.util.Map<String, ModConfigSpec.DoubleValue> STRUCTURES = new java.util.LinkedHashMap<>();
 
     public static final ModConfigSpec.EnumValue<RespecMode> RESPEC_MODE;
     public static final ModConfigSpec.IntValue RESPEC_COOLDOWN_MINUTES;
@@ -89,6 +90,14 @@ public final class RpgConfig {
                 .defineInRange("spawnRate", 1.0, 0.0, 1.0);
         b.pop();
 
+        b.comment("Frequência das estruturas: chance (0 a 1) de cada ponto candidato gerar a estrutura. 0 desativa.").push("worldgen");
+        for (String[] s : new String[][]{{"camp", "Acampamentos goblins (mundo principal)"}, {"tower", "Torres de vigia (mundo principal)"},
+                {"shrine", "Santuários do Alvorecer (mundo principal)"}, {"dungeon", "Entradas de masmorras (mundo principal e Éter)"},
+                {"ruins", "Ruínas Etéreas (Reinos do Éter)"}, {"arena", "Arenas Celestes (Reinos do Éter)"}}) {
+            STRUCTURES.put(s[0], b.comment(s[1]).defineInRange(s[0], 1.0, 0.0, 1.0));
+        }
+        b.pop();
+
         b.comment("Missões").push("quests");
         MAX_ACTIVE_QUESTS = b.comment("Máximo de missões ativas por jogador.").defineInRange("maxActive", 5, 1, 50);
         b.pop();
@@ -102,5 +111,16 @@ public final class RpgConfig {
     }
 
     private RpgConfig() {
+    }
+
+    /** Frequência configurada de um tipo de estrutura (1 se desconhecido ou se a configuração ainda não carregou). */
+    public static double structureFrequency(String kind) {
+        ModConfigSpec.DoubleValue v = STRUCTURES.get(kind);
+        if (v == null) return 1;
+        try {
+            return v.get();
+        } catch (IllegalStateException e) {
+            return 1;
+        }
     }
 }

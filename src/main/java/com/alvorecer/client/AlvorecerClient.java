@@ -52,6 +52,8 @@ public class AlvorecerClient {
         modBus.addListener(AlvorecerClient::registerRenderers);
         ClientGear.init(modBus);
         com.alvorecer.client.mob.ClientMobs.init(modBus);
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent e) ->
+                e.register(ResourceLocation.fromNamespaceAndPath(Alvorecer.MODID, "aether"), new AetherSky()));
         NeoForge.EVENT_BUS.addListener(AlvorecerClient::onClientTick);
         NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> ClientHooks.party(java.util.List.of()));
     }

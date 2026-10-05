@@ -1,0 +1,10 @@
+{
+  "type": "alvorecer:template",
+  "biomes": "#alvorecer:has_structure/goblin_camp",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_thin",
+  "template": "alvorecer:goblin_camp",
+  "kind": "camp",
+  "y_offset": -1
+}

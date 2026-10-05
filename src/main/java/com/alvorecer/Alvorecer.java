@@ -30,6 +30,10 @@ public class Alvorecer {
         ModBlocks.BLOCKS.register(modBus);
         ModGear.init();
         com.alvorecer.registry.ModMobs.init();
+        com.alvorecer.registry.ModWorld.init();
+        com.alvorecer.registry.ModWorld.POI.register(modBus);
+        com.alvorecer.registry.ModWorld.STRUCTURE_TYPES.register(modBus);
+        com.alvorecer.registry.ModWorld.PIECES.register(modBus);
         com.alvorecer.registry.ModSounds.SOUNDS.register(modBus);
         modBus.addListener(com.alvorecer.registry.ModMobs::attributes);
         modBus.addListener(com.alvorecer.registry.ModMobs::spawnPlacements);

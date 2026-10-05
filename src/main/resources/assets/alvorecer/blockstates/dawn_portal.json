@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "alvorecer:block/dawn_portal_ns"
+    },
+    "axis=z": {
+      "model": "alvorecer:block/dawn_portal_ew"
+    }
+  }
+}

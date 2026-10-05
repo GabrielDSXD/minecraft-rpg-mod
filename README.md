@@ -2,7 +2,7 @@
 
 Mod de RPG de fantasia para **Minecraft Java 1.21.1** com **NeoForge 21.1.x** (testado com 21.1.255). Funciona em singleplayer e em servidor dedicado; o mod precisa estar instalado no cliente e no servidor.
 
-A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável), **Etapa 2** (talentos, grupos, missões e conquistas), **Etapa 3** (equipamentos) e **Etapa 4** (criaturas e NPCs).
+A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável), **Etapa 2** (talentos, grupos, missões e conquistas), **Etapa 3** (equipamentos), **Etapa 4** (criaturas e NPCs) e **Etapa 5** (Reinos do Éter, portal e estruturas).
 
 ## Compilar
 
@@ -76,17 +76,22 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 - Ovos de invocação, Cetro do Bestiário (ferramenta de administrador para invocar qualquer criatura) e capítulo Bestiário no Codex (informações avançadas liberadas ao derrotar cada criatura). Drops usados nas receitas de ofício.
 - Frequência de nascimento configurável (`creatures.spawnRate`).
 
+### Etapa 5 — Reinos do Éter, Portal do Alvorecer e estruturas (concluída)
+- Dimensão Reinos do Éter (`alvorecer:aether_realms`): ilhas flutuantes com 4 biomas (Prados Etéreos, Floresta Luminosa, Planaltos de Cristal, Vastidão em Ruínas), céu e névoa próprios, minérios de Prata Lunar e Aurorita, criaturas por bioma.
+- Portal do Alvorecer: Pedra do Alvorecer (8 tijolos de pedra + Gema de Aurorita = 8) e Chave do Alvorecer (Gema de Aurorita + lingote de ouro + Pó de Fada, 8 usos). Moldura retangular vertical com interior de 2×3 a 21×21 (cantos opcionais); a chave acende o portal no mundo principal ou no Éter; 3 s dentro do portal para viajar (escala 1:1). O destino reutiliza um portal num raio de 32 blocos ou constrói um com plataforma no terreno mais próximo; quebrar a moldura apaga o portal.
+- Estruturas com frequência configurável (`worldgen.*`, 0 a 1): Acampamento Goblin, Torre de Vigia e Santuário do Alvorecer (NPCs, Mural, Bancada) no mundo principal; Ruínas Etéreas e Arena Celeste (8 pilares, sentinelas) no Éter. Baús com loot próprio.
+- Missão "Além do Alvorecer", conquistas "A Primeira Luz" e "Reinos do Éter", capítulo "Mundo e Portal" no Codex.
+
 ### Testes (estado atual)
-- `./gradlew build`: 34 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas). Todos passando.
-- `./gradlew runGameTestServer`: 16 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental e NPCs (comércio, proteção e missões). Todos passando.
-- Servidor dedicado inicia sem erros; cliente conectado ao servidor dedicado testado (Etapa 1).
+- `./gradlew build`: 36 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas), dados do mundo (estruturas → moldes, conjuntos, tags e loot; biomas, ordem das features, temperatura sem neve nas ilhas, dimensão, missão e conquistas). Todos passando.
+- `./gradlew runGameTestServer`: 19 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental, NPCs (comércio, proteção e missões), Chave do Alvorecer (moldura incompleta recusada, acendimento, durabilidade, conquista, busca por POI, quebra da moldura apaga o portal) e portal de retorno (construção, saída na plataforma, terreno de chunk não carregado). Todos passando. O GameTest usa um mundo plano próprio em `run/gametest`, sem as dimensões de datapack; a viagem até o Éter é validada no servidor dedicado.
+- Servidor dedicado inicia sem erros; cliente conectado ao servidor dedicado testado (Etapas 1 e 5). Etapa 5 no servidor dedicado: `locate` encontra os 4 biomas e as 5 estruturas geradas naturalmente; portal aceso com a chave pelo cliente, viagem ao Éter com portal de retorno sobre uma ilha, conquistas concedidas; Santuário e Arena Celeste vistos no jogo.
 - Cliente singleplayer testado pela interface: criação, HUD, ficha, Codex, habilidades, comandos, persistência, tela de talentos (gastar pontos, especialização), Mural de Missões (aceitar e entregar missão de coleta) e avisos de conquista.
 - Cliente: equipamentos (aba criativa, tooltips, armadura no corpo, Onda Solar, Bancada de Ofício), todas as criaturas e NPCs renderizando, diálogo e comércio com NPC.
 - Ainda não testado visualmente: o painel do grupo com dois clientes reais, o voo das Asas Prismáticas e a animação de puxar o arco.
 
 ## Próximas etapas (ainda não implementadas)
 
-5. Dimensão Reinos do Éter, Portal do Alvorecer e estruturas no mundo principal com frequência configurável.
 6. Masmorras com salas, armadilhas, enigmas e dificuldade por tamanho de grupo.
 7. Chefe Guardião do Primeiro Alvorecer (3 fases) e o Coração do Alvorecer.
 

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " G ",
+    " I ",
+    " F "
+  ],
+  "key": {
+    "G": {
+      "item": "alvorecer:aurorite_gem"
+    },
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "F": {
+      "item": "alvorecer:fairy_dust"
+    }
+  },
+  "result": {
+    "id": "alvorecer:dawn_key",
+    "count": 1
+  }
+}

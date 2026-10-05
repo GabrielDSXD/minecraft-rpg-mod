@@ -1,0 +1,10 @@
+{
+  "type": "alvorecer:template",
+  "biomes": "#alvorecer:has_structure/watch_tower",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_box",
+  "template": "alvorecer:watch_tower",
+  "kind": "tower",
+  "y_offset": -1
+}

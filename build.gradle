@@ -37,6 +37,7 @@ neoForge {
         }
         gameTestServer {
             type = "gameTestServer"
+            gameDirectory = project.file('run/gametest') // mundo plano próprio; não sobrescreve o mundo de run/world
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
         configureEach {

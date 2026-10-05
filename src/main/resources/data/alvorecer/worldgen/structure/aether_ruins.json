@@ -1,0 +1,10 @@
+{
+  "type": "alvorecer:template",
+  "biomes": "#alvorecer:has_structure/aether_ruins",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none",
+  "template": "alvorecer:aether_ruins",
+  "kind": "ruins",
+  "y_offset": -1
+}
