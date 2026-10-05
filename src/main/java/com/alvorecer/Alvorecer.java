@@ -29,6 +29,10 @@ public class Alvorecer {
         ModItems.ITEMS.register(modBus);
         ModBlocks.BLOCKS.register(modBus);
         ModGear.init();
+        com.alvorecer.registry.ModMobs.init();
+        com.alvorecer.registry.ModSounds.SOUNDS.register(modBus);
+        modBus.addListener(com.alvorecer.registry.ModMobs::attributes);
+        modBus.addListener(com.alvorecer.registry.ModMobs::spawnPlacements);
         ModGear.ARMOR_MATERIALS.register(modBus);
         ModGear.COMPONENTS.register(modBus);
         ModItems.TABS.register(modBus);

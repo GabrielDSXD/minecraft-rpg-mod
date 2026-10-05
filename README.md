@@ -2,7 +2,7 @@
 
 Mod de RPG de fantasia para **Minecraft Java 1.21.1** com **NeoForge 21.1.x** (testado com 21.1.255). Funciona em singleplayer e em servidor dedicado; o mod precisa estar instalado no cliente e no servidor.
 
-A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável) e **Etapa 2** (talentos, especializações, grupos, missões e conquistas).
+A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável), **Etapa 2** (talentos, grupos, missões e conquistas), **Etapa 3** (equipamentos) e **Etapa 4** (criaturas e NPCs).
 
 ## Compilar
 
@@ -62,17 +62,30 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 - 20 missões (combate, exploração, coleta, profissão, progressão; diárias repetíveis) no Mural de Missões, com diário no Codex.
 - 15 conquistas (aba própria em Progressos e capítulo no Codex).
 
+### Etapa 3 — equipamentos (concluída)
+- Materiais com minério gerado no mundo: Prata Lunar (entre −48 e 48) e Aurorita (ardósia abaixo de −16).
+- Ferramentas completas de Prata Lunar e Aurorita; adagas, espadas, martelos de guerra, lanças (+1 de alcance), arcos e bestas (multiplicam o dano das flechas), escudos, cajados e varinhas.
+- Raridades (Comum a Lendário), nível exigido (abaixo dele: sem bônus, metade do dano, sem habilidade), bônus ao equipar e tooltips completos.
+- 4 conjuntos de armadura (leve, leve, média, pesada) com bônus por peça e de conjunto.
+- Ruptora Solar (onda radiante perfurante), Lâmina do Alvorecer (investida com rastro de luz), Cajado Arcano (lança os feitiços desbloqueados, agachado troca), Adagas das Sombras (furtivo + evasão), Asas Prismáticas (élitros com rastro de cores).
+- Bancada de Ofício com receitas que exigem nível de profissão; elixires, unguento e ensopado.
+
+### Etapa 4 — criaturas e NPCs (concluída)
+- 7 criaturas originais com modelo, animação procedural, textura, sons próprios (OGG sintetizados), atributos, IA, drops e nascimento natural por bioma: Goblin (emboscada com salto), Esqueleto Guerreiro (escudo bloqueia projéteis frontais, investida telegrafada), Lobo Arcano (teleporte pelas costas), Elemental de fogo/gelo (projéteis e pulso em área), Sentinela de Pedra (golpe no chão com anel de aviso), Fada (cega e foge) e Dragonete (sopro de fogo em cone).
+- 3 NPCs (Mestre da Guilda, Mercador Itinerante, Sábio) com diálogo, comércio (desconto de Carisma, estoque diário) e missões; não podem ser feridos por jogadores.
+- Ovos de invocação, Cetro do Bestiário (ferramenta de administrador para invocar qualquer criatura) e capítulo Bestiário no Codex (informações avançadas liberadas ao derrotar cada criatura). Drops usados nas receitas de ofício.
+- Frequência de nascimento configurável (`creatures.spawnRate`).
+
 ### Testes (estado atual)
-- `./gradlew build`: 27 testes JUnit — fórmulas, persistência NBT, validação de habilidades e custos, criação/pontos, traduções, regras de talentos e especializações, divisão de XP, catálogo e fluxo de missões, conquistas. Todos passando.
-- `./gradlew runGameTestServer`: 8 GameTests em servidor real — golpe com custo e recarga, linha de visão, suprema bloqueada, passivas raciais, persistência no NBT do jogador, gasto de talento validado no servidor, grupo (XP dividido e sem fogo amigo), missão completa no mural (aceitar, abater 10 zumbis, entregar e receber recompensa). Todos passando.
+- `./gradlew build`: 34 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas). Todos passando.
+- `./gradlew runGameTestServer`: 16 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental e NPCs (comércio, proteção e missões). Todos passando.
 - Servidor dedicado inicia sem erros; cliente conectado ao servidor dedicado testado (Etapa 1).
 - Cliente singleplayer testado pela interface: criação, HUD, ficha, Codex, habilidades, comandos, persistência, tela de talentos (gastar pontos, especialização), Mural de Missões (aceitar e entregar missão de coleta) e avisos de conquista.
-- Ainda não testado visualmente: o painel do grupo no HUD com dois clientes reais (a lógica do grupo foi testada nos GameTests).
+- Cliente: equipamentos (aba criativa, tooltips, armadura no corpo, Onda Solar, Bancada de Ofício), todas as criaturas e NPCs renderizando, diálogo e comércio com NPC.
+- Ainda não testado visualmente: o painel do grupo com dois clientes reais, o voo das Asas Prismáticas e a animação de puxar o arco.
 
 ## Próximas etapas (ainda não implementadas)
 
-3. Equipamentos: conjuntos de ferramentas e armas (adagas, cajados, varinhas, arcos, bestas, martelos, lanças, escudos), raridades e requisitos, armaduras leves/médias/pesadas com bônus de conjunto, Ruptora Solar, Lâmina do Alvorecer, Cajado Arcano (seleção de feitiços), Adagas das Sombras, Asas Prismáticas e receitas de profissão.
-4. Criaturas originais com modelos, animações, sons e drops; ovos e ferramenta de demonstração; NPCs com diálogo, comércio e missões.
 5. Dimensão Reinos do Éter, Portal do Alvorecer e estruturas no mundo principal com frequência configurável.
 6. Masmorras com salas, armadilhas, enigmas e dificuldade por tamanho de grupo.
 7. Chefe Guardião do Primeiro Alvorecer (3 fases) e o Coração do Alvorecer.
@@ -82,7 +95,9 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 - `src/main/java/com/alvorecer/rpg` — modelo (raças, classes, profissões, fórmulas, ficha) e `rpg/talent` (talentos)
 - `.../ability` — habilidades, validação e utilidades de alvo/dano
 - `.../party`, `.../quest`, `.../achievement` — grupos, missões e conquistas
+- `.../item/gear`, `.../crafting` — equipamentos e Bancada de Ofício
+- `.../entity/mob`, `.../entity/npc`, `.../client/mob` — criaturas, NPCs, modelos e renderização
 - `.../event` — combate, ciclo do jogador e profissões
 - `.../client` — HUD, telas e renderização
 - `.../gametest` — GameTests
-- `tools/` — geradores do arquivo de idioma, texturas e estruturas (`python tools/gen_lang.py src/main/resources/assets/alvorecer/lang`)
+- `tools/` — geradores de idioma, texturas, equipamentos, criaturas, sons e estruturas (`python tools/gen_lang.py src/main/resources/assets/alvorecer/lang`; `gen_sounds.py` requer numpy e soundfile)

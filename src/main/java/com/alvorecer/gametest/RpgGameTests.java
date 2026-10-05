@@ -59,7 +59,7 @@ public class RpgGameTests {
     }
 
     private static Zombie zombie(GameTestHelper h, double x, double z) {
-        Zombie zombie = h.spawnWithNoFreeWill(EntityType.ZOMBIE, (float) x, 1, (float) z);
+        Zombie zombie = h.spawnWithNoFreeWill(EntityType.ZOMBIE, (float) x, 2, (float) z);
         zombie.setYRot(180);
         zombie.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET)); // não queima ao sol
         zombie.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 2000));
@@ -68,7 +68,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void powerStrikeHitsChargesAndCoolsDown(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 1.5));
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 2, 1.5));
         Zombie zombie = zombie(h, 3.5, 3.5);
         PlayerRpgData d = ModAttachments.get(p);
         float energy = d.energy;
@@ -89,9 +89,9 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void abilityRespectsLineOfSight(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 1.5));
-        h.setBlock(new BlockPos(3, 1, 2), Blocks.STONE);
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 2, 1.5));
         h.setBlock(new BlockPos(3, 2, 2), Blocks.STONE);
+        h.setBlock(new BlockPos(3, 3, 2), Blocks.STONE);
         Zombie zombie = zombie(h, 3.5, 3.5);
         PlayerRpgData d = ModAttachments.get(p);
         float energy = d.energy;
@@ -106,7 +106,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void lockedUltimateIsRejected(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.ORC, RpgClass.BARBARIAN, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.ORC, RpgClass.BARBARIAN, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
         float energy = d.energy;
         AbilityService.use(p, AbilityService.SLOT_ULTIMATE);
@@ -122,7 +122,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void raceAbilityAndPassivesApply(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.DWARF, RpgClass.CLERIC, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.DWARF, RpgClass.CLERIC, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
         h.assertTrue(Math.abs(p.getAttributeValue(Attributes.SCALE) - 0.9) < 1e-6, "anão deve ter escala 0,9");
         h.assertTrue(p.getAttribute(Attributes.MOVEMENT_SPEED).getValue() < p.getAttribute(Attributes.MOVEMENT_SPEED).getBaseValue(),
@@ -138,7 +138,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void sheetPersistsInPlayerNbt(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.DRAGONBORN, RpgClass.WIZARD, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.DRAGONBORN, RpgClass.WIZARD, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
         d.element = Element.COLD;
         d.level = 7;
@@ -160,7 +160,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void talentSpendingIsValidatedOnServer(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
         ModNetwork.onSpendTalent(p, "warrior_tough_hide");
         h.assertTrue(d.talents.isEmpty(), "sem pontos no nível 1");
@@ -180,8 +180,8 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void partySharesXpAndBlocksFriendlyFire(GameTestHelper h) {
-        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(2.5, 1, 2.5));
-        ServerPlayer b = player(h, Race.ELF, RpgClass.CLERIC, new Vec3(4.5, 1, 2.5));
+        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(2.5, 2, 2.5));
+        ServerPlayer b = player(h, Race.ELF, RpgClass.CLERIC, new Vec3(4.5, 2, 2.5));
         h.assertTrue(com.alvorecer.party.Parties.invite(a, b), "convite");
         h.assertTrue(com.alvorecer.party.Parties.accept(b), "aceite");
         h.assertTrue(com.alvorecer.party.Parties.sameParty(a, b), "mesmo grupo");
@@ -207,9 +207,9 @@ public class RpgGameTests {
 
     @GameTest(template = "arena", timeoutTicks = 200)
     public static void questBoardAcceptKillAndComplete(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.ORC, RpgClass.BARBARIAN, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.ORC, RpgClass.BARBARIAN, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
-        BlockPos board = new BlockPos(1, 1, 1);
+        BlockPos board = new BlockPos(1, 2, 1);
         h.setBlock(board, com.alvorecer.registry.ModBlocks.QUEST_BOARD.get());
         h.assertFalse(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "sem abrir o mural não pode aceitar");
         d.lastBoardPos = h.absolutePos(board);
@@ -232,7 +232,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void gearBonusesRespectLevelAndSets(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
         float baseMax = p.getMaxHealth();
         var armor = com.alvorecer.registry.ModGear.AURORITE_ARMOR;
@@ -255,7 +255,7 @@ public class RpgGameTests {
 
     @GameTest(template = "arena", timeoutTicks = 60)
     public static void specialWeaponAbilityIsValidated(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.HUMAN, RpgClass.PALADIN, new Vec3(3.5, 1, 1.5));
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.PALADIN, new Vec3(3.5, 2, 1.5));
         PlayerRpgData d = ModAttachments.get(p);
         ItemStack breaker = new ItemStack(com.alvorecer.registry.ModGear.SOLAR_BREAKER.get());
         p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, breaker);
@@ -277,9 +277,9 @@ public class RpgGameTests {
 
     @GameTest(template = "arena")
     public static void workbenchCraftingRequiresProfession(GameTestHelper h) {
-        ServerPlayer p = player(h, Race.DWARF, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        ServerPlayer p = player(h, Race.DWARF, RpgClass.WARRIOR, new Vec3(3.5, 2, 3.5));
         PlayerRpgData d = ModAttachments.get(p);
-        BlockPos bench = new BlockPos(1, 1, 1);
+        BlockPos bench = new BlockPos(1, 2, 1);
         h.setBlock(bench, com.alvorecer.registry.ModGear.WORKBENCH.get());
         d.lastWorkbenchPos = h.absolutePos(bench);
         p.getInventory().add(new ItemStack(com.alvorecer.registry.ModGear.AURORITE_SHARD.get(), 4));
@@ -296,5 +296,109 @@ public class RpgGameTests {
         h.assertFalse(com.alvorecer.crafting.ProfessionRecipes.craft(p, "aurorite_cutting"), "longe da bancada");
         leave(h, p);
         h.succeed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 100)
+    public static void allCreaturesSpawnAndTick(GameTestHelper h) {
+        java.util.List<net.minecraft.world.entity.Mob> mobs = new java.util.ArrayList<>();
+        int i = 0;
+        for (var type : com.alvorecer.registry.ModMobs.CREATURES.values()) {
+            mobs.add(h.spawn(type.get(), new BlockPos(1 + (i % 5), 2, 1 + (i / 5) * 3)));
+            i++;
+        }
+        h.runAfterDelay(60, () -> {
+            for (var m : mobs) h.assertTrue(m.isAlive(), m.getType().getDescriptionId() + " deveria continuar vivo após 3 s (remoção: "
+                    + m.getRemovalReason() + ", vida " + m.getHealth() + ", última causa: " + m.getLastDamageSource() + ")");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 140)
+    public static void sentinelSlamIsTelegraphedThenHits(GameTestHelper h) {
+        var sentinel = h.spawn(com.alvorecer.registry.ModMobs.STONE_SENTINEL.get(), new Vec3(3.5, 2, 2.0));
+        var pig = h.spawn(EntityType.PIG, new Vec3(3.5, 2, 5.6));
+        pig.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 400, 10));
+        sentinel.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 400, 10));
+        sentinel.setTarget(pig);
+        float hp = pig.getHealth();
+        int[] slamSeenAt = {-1};
+        int[] damagedAt = {-1};
+        int[] tick = {0};
+        h.onEachTick(() -> {
+            tick[0]++;
+            if (slamSeenAt[0] < 0 && sentinel.slamTicks() > 0) slamSeenAt[0] = tick[0];
+            if (damagedAt[0] < 0 && pig.getHealth() < hp) {
+                damagedAt[0] = tick[0];
+                h.assertTrue(slamSeenAt[0] >= 0 && tick[0] - slamSeenAt[0] >= StoneSentinelEntityTicks.WINDUP - 1,
+                        "o dano só pode vir depois do aviso de 1 s (dano no tick " + tick[0] + ", aviso no tick " + slamSeenAt[0]
+                                + ", causa " + pig.getLastDamageSource() + ")");
+            }
+        });
+        h.runAfterDelay(110, () -> {
+            h.assertTrue(slamSeenAt[0] >= 0, "a sentinela devia preparar o golpe no chão");
+            h.assertTrue(!pig.isAlive() || pig.getHealth() < hp, "o golpe no chão devia ferir o alvo dentro do anel (fora do alcance corpo a corpo)");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena")
+    public static void skeletonWarriorBlocksOnlyFrontalProjectiles(GameTestHelper h) {
+        var sk = h.spawnWithNoFreeWill(com.alvorecer.registry.ModMobs.SKELETON_WARRIOR.get(), new BlockPos(3, 2, 3));
+        sk.setYRot(0);
+        sk.setYBodyRot(0);
+        sk.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1000));
+        sk.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
+        int frontHits = 0, backHits = 0;
+        for (int i = 0; i < 20; i++) {
+            var front = new net.minecraft.world.entity.projectile.Arrow(EntityType.ARROW, h.getLevel());
+            front.setPos(sk.getX(), sk.getY() + 1, sk.getZ() + 3); // yaw 0 olha para +Z
+            sk.invulnerableTime = 0;
+            sk.setHealth(sk.getMaxHealth());
+            if (sk.hurt(h.getLevel().damageSources().arrow(front, null), 1)) frontHits++;
+            var back = new net.minecraft.world.entity.projectile.Arrow(EntityType.ARROW, h.getLevel());
+            back.setPos(sk.getX(), sk.getY() + 1, sk.getZ() - 3);
+            sk.invulnerableTime = 0;
+            if (sk.hurt(h.getLevel().damageSources().arrow(back, null), 1)) backHits++;
+        }
+        h.assertTrue(backHits == 20, "projéteis pelas costas sempre acertam (" + backHits + ")");
+        h.assertTrue(frontHits < 15, "a maioria dos projéteis frontais é bloqueada (" + frontHits + " acertos)");
+        h.succeed();
+    }
+
+    @GameTest(template = "arena")
+    public static void elementalResistsOwnElement(GameTestHelper h) {
+        var fire = h.spawnWithNoFreeWill(com.alvorecer.registry.ModMobs.ELEMENTAL.get(), new BlockPos(2, 3, 2));
+        fire.setFrost(false);
+        var frost = h.spawnWithNoFreeWill(com.alvorecer.registry.ModMobs.ELEMENTAL.get(), new BlockPos(4, 3, 4));
+        frost.setFrost(true);
+        var src = h.getLevel().damageSources().source(com.alvorecer.registry.ModDamageTypes.FIRE);
+        h.assertFalse(fire.hurt(src, 4), "elemental de fogo é imune a fogo");
+        float before = frost.getHealth();
+        h.assertTrue(frost.hurt(src, 4), "elemental de gelo sofre fogo");
+        h.assertTrue(before - frost.getHealth() >= 7.9f, "dano de fogo dobrado no de gelo");
+        h.succeed();
+    }
+
+    @GameTest(template = "arena")
+    public static void npcTradesProtectionAndQuests(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.BARD, new Vec3(3.5, 2, 3.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        var master = h.spawn(com.alvorecer.registry.ModMobs.GUILD_MASTER.get(), new BlockPos(3, 2, 5));
+        var merchant = h.spawn(com.alvorecer.registry.ModMobs.MERCHANT.get(), new BlockPos(5, 2, 5));
+        h.assertTrue(!master.getOffers().isEmpty() && !merchant.getOffers().isEmpty(), "NPCs têm ofertas");
+        var zombie = h.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(1, 2, 1));
+        h.assertFalse(master.hurt(h.getLevel().damageSources().mobAttack(zombie), 10), "NPC não pode ser ferido");
+        h.assertFalse(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "sem falar com o NPC não aceita");
+        master.handleAction(p, 1);
+        h.assertTrue(d.questGiver != null && d.questGiver.equals(master.getUUID()), "conversa com o Mestre registrada");
+        h.assertTrue(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "o Mestre da Guilda oferece missões");
+        merchant.handleAction(p, 1);
+        h.assertTrue(d.questGiver.equals(master.getUUID()), "o Mercador não oferece missões");
+        leave(h, p);
+        h.succeed();
+    }
+
+    private static final class StoneSentinelEntityTicks {
+        static final int WINDUP = com.alvorecer.entity.mob.StoneSentinelEntity.SLAM_WINDUP;
     }
 }

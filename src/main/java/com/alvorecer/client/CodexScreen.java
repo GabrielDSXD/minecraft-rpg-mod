@@ -28,7 +28,7 @@ import java.util.List;
 public class CodexScreen extends Screen {
     private static final int W = 420, H = 236;
     private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "talents", "professions", "equipment",
-            "recipes", "formulas", "quests", "achievements", "party", "journal", "controls", "admin"};
+            "recipes", "bestiary", "formulas", "quests", "achievements", "party", "journal", "controls", "admin"};
     private static final int FORMULAS_LEVEL = 3;
     private static int chapter;
     private int scroll;
@@ -56,7 +56,7 @@ public class CodexScreen extends Screen {
                 chapter = c;
                 scroll = 0;
                 rebuildWidgets();
-            }).bounds(left() + 8, top() + 19 + i * 14, 100, 13).build());
+            }).bounds(left() + 8, top() + 19 + i * 13, 100, 12).build());
         }
         build();
     }
@@ -171,6 +171,22 @@ public class CodexScreen extends Screen {
                             first = false;
                         }
                         out.add(line);
+                    }
+                }
+            }
+            case "bestiary" -> {
+                PlayerRpgData d = data();
+                out.add(Component.translatable("codex.alvorecer.bestiary", d.bestiary.size(), 7));
+                for (String mob : com.alvorecer.registry.ModMobs.CREATURES.keySet()) {
+                    boolean npc = mob.equals("guild_master") || mob.equals("merchant") || mob.equals("sage");
+                    out.add(Component.empty());
+                    out.add(Component.translatable("entity.alvorecer." + mob).withStyle(ChatFormatting.YELLOW));
+                    out.add(Component.translatable("bestiary.alvorecer." + mob));
+                    if (npc) continue;
+                    if (d.bestiary.contains(mob)) {
+                        out.add(Component.translatable("bestiary.alvorecer." + mob + ".advanced").withStyle(ChatFormatting.AQUA));
+                    } else {
+                        out.add(Component.translatable("codex.alvorecer.bestiary_locked").withStyle(ChatFormatting.DARK_GRAY));
                     }
                 }
             }

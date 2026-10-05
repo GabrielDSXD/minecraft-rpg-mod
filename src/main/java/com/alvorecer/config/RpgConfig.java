@@ -41,6 +41,7 @@ public final class RpgConfig {
     public static final ModConfigSpec.BooleanValue PARTY_FRIENDLY_FIRE;
 
     public static final ModConfigSpec.IntValue MAX_ACTIVE_QUESTS;
+    public static final ModConfigSpec.DoubleValue CREATURE_SPAWN_RATE;
 
     public static final ModConfigSpec.EnumValue<RespecMode> RESPEC_MODE;
     public static final ModConfigSpec.IntValue RESPEC_COOLDOWN_MINUTES;
@@ -81,6 +82,11 @@ public final class RpgConfig {
         PARTY_XP_BONUS = b.comment("Bônus de XP por membro extra que participa da divisão (0,1 = +10%).").defineInRange("xpBonusPerMember", 0.1, 0.0, 1.0);
         PARTY_RANGE = b.comment("Distância (blocos) para receber XP e crédito de missão do grupo.").defineInRange("range", 48, 8, 256);
         PARTY_FRIENDLY_FIRE = b.comment("Membros do mesmo grupo podem ferir uns aos outros.").define("friendlyFire", false);
+        b.pop();
+
+        b.comment("Criaturas do mod").push("creatures");
+        CREATURE_SPAWN_RATE = b.comment("Chance (0 a 1) de cada tentativa de nascimento natural das criaturas do mod ser aceita. 0 desativa.")
+                .defineInRange("spawnRate", 1.0, 0.0, 1.0);
         b.pop();
 
         b.comment("Missões").push("quests");

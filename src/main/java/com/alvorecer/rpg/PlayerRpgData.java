@@ -53,6 +53,8 @@ public class PlayerRpgData implements INBTSerializable<CompoundTag> {
     public final Map<String, Integer> activeQuests = new HashMap<>();
     public final Map<String, Long> completedQuests = new HashMap<>();
     public int questsCompleted;
+    /** Criaturas do mod já derrotadas (libera as informações avançadas do Bestiário). */
+    public final Set<String> bestiary = new HashSet<>();
     public long lastRespecTime = Long.MIN_VALUE;
     public boolean codexGiven;
     /** Contagem de encantamentos vista pela última vez (estatística vanilla); -1 = ainda não lida. */
@@ -68,6 +70,8 @@ public class PlayerRpgData implements INBTSerializable<CompoundTag> {
     /** Bônus de equipamento (recalculado ao trocar itens; não salvo). */
     public double[] gearBonus = new double[BonusType.values().length];
     @Nullable public net.minecraft.core.BlockPos lastWorkbenchPos;
+    /** NPC de missões com quem o jogador está falando. */
+    @Nullable public UUID questGiver;
     /** Último Mural de Missões aberto (para validar aceitar/entregar perto dele). */
     @Nullable public net.minecraft.core.BlockPos lastBoardPos;
 
@@ -177,6 +181,9 @@ public class PlayerRpgData implements INBTSerializable<CompoundTag> {
         completedQuests.forEach(cq::putLong);
         tag.put("questsDone", cq);
         tag.putInt("questsCompleted", questsCompleted);
+        ListTag best = new ListTag();
+        bestiary.forEach(b -> best.add(StringTag.valueOf(b)));
+        tag.put("bestiary", best);
         return tag;
     }
 
@@ -225,6 +232,9 @@ public class PlayerRpgData implements INBTSerializable<CompoundTag> {
         CompoundTag cq = tag.getCompound("questsDone");
         for (String k : cq.getAllKeys()) completedQuests.put(k, cq.getLong(k));
         questsCompleted = tag.getInt("questsCompleted");
+        bestiary.clear();
+        ListTag best = tag.getList("bestiary", Tag.TAG_STRING);
+        for (int i = 0; i < best.size(); i++) bestiary.add(best.getString(i));
     }
 
     @Nullable

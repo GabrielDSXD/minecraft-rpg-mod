@@ -163,6 +163,30 @@ public final class ModNetwork {
         }
     }
 
+    /** Abre o diálogo de um NPC no cliente. */
+    public record OpenNpc(int entityId, int role) implements CustomPacketPayload {
+        public static final Type<OpenNpc> TYPE = typeOf("open_npc");
+        public static final StreamCodec<ByteBuf, OpenNpc> CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, OpenNpc::entityId, ByteBufCodecs.VAR_INT, OpenNpc::role, OpenNpc::new);
+
+        @Override
+        public Type<OpenNpc> type() {
+            return TYPE;
+        }
+    }
+
+    /** Ação no diálogo do NPC: 0 comércio, 1 missões. */
+    public record NpcAction(int entityId, int action) implements CustomPacketPayload {
+        public static final Type<NpcAction> TYPE = typeOf("npc_action");
+        public static final StreamCodec<ByteBuf, NpcAction> CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, NpcAction::entityId, ByteBufCodecs.VAR_INT, NpcAction::action, NpcAction::new);
+
+        @Override
+        public Type<NpcAction> type() {
+            return TYPE;
+        }
+    }
+
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar r = event.registrar("1");
         r.playToClient(OpenScreen.TYPE, OpenScreen.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.openScreen(msg.screen()));
@@ -182,6 +206,11 @@ public final class ModNetwork {
             }
         });
         r.playToServer(CraftRecipe.TYPE, CraftRecipe.CODEC, (msg, ctx) -> com.alvorecer.crafting.ProfessionRecipes.craft((ServerPlayer) ctx.player(), msg.id()));
+        r.playToClient(OpenNpc.TYPE, OpenNpc.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.openNpc(msg.entityId(), msg.role()));
+        r.playToServer(NpcAction.TYPE, NpcAction.CODEC, (msg, ctx) -> {
+            ServerPlayer p = (ServerPlayer) ctx.player();
+            if (p.level().getEntity(msg.entityId()) instanceof com.alvorecer.entity.npc.NpcEntity npc) npc.handleAction(p, msg.action());
+        });
         r.playToClient(PartySync.TYPE, PartySync.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.party(msg.members()));
     }
 

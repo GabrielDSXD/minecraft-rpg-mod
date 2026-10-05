@@ -51,6 +51,7 @@ public class AlvorecerClient {
         modBus.addListener(AlvorecerClient::registerLayers);
         modBus.addListener(AlvorecerClient::registerRenderers);
         ClientGear.init(modBus);
+        com.alvorecer.client.mob.ClientMobs.init(modBus);
         NeoForge.EVENT_BUS.addListener(AlvorecerClient::onClientTick);
         NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> ClientHooks.party(java.util.List.of()));
     }

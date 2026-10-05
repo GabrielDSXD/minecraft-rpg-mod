@@ -138,11 +138,15 @@ public final class Quests {
         p.displayClientMessage(Component.translatable("quest.alvorecer.msg." + key, args), true);
     }
 
-    /** O mural precisa estar a até 8 blocos (a posição é registrada quando o jogador o abre). */
+    /** É preciso estar a até 8 blocos do Mural aberto ou de um NPC de missões com quem se está falando. */
     private static boolean nearBoard(ServerPlayer p, PlayerRpgData d) {
         BlockPos pos = d.lastBoardPos;
-        return pos != null && p.level().getBlockState(pos).is(com.alvorecer.registry.ModBlocks.QUEST_BOARD.get())
-                && p.blockPosition().closerThan(pos, 8);
+        if (pos != null && p.level().getBlockState(pos).is(com.alvorecer.registry.ModBlocks.QUEST_BOARD.get())
+                && p.blockPosition().closerThan(pos, 8)) return true;
+        if (d.questGiver != null && p.serverLevel().getEntity(d.questGiver) instanceof com.alvorecer.entity.npc.NpcEntity npc) {
+            return npc.isAlive() && npc.role().givesQuests() && npc.distanceTo(p) <= 8;
+        }
+        return false;
     }
 
     public static boolean accept(ServerPlayer p, String id) {

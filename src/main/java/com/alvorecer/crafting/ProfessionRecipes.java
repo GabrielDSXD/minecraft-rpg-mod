@@ -71,21 +71,21 @@ public final class ProfessionRecipes {
         for (int i = 0; i < 4; i++) {
             r("aurorite_" + pieces[i], Profession.BLACKSMITH, 12, ModGear.AURORITE_ARMOR[i], 1, 60, in(gem, gems[i]), in(ingot, 2));
         }
-        r("dawn_blade", Profession.BLACKSMITH, 16, ModGear.DAWN_BLADE, 1, 200, in(gem, 6), in("minecraft:blaze_rod", 2), in("minecraft:gold_block", 1));
-        r("solar_breaker", Profession.BLACKSMITH, 18, ModGear.SOLAR_BREAKER, 1, 250, in(gem, 8), in("minecraft:gold_block", 2), in("minecraft:nether_star", 1));
+        r("dawn_blade", Profession.BLACKSMITH, 16, ModGear.DAWN_BLADE, 1, 200, in(gem, 6), in("alvorecer:wyrmling_scale", 4), in("minecraft:gold_block", 1));
+        r("solar_breaker", Profession.BLACKSMITH, 18, ModGear.SOLAR_BREAKER, 1, 250, in(gem, 8), in("minecraft:gold_block", 2), in("alvorecer:sentinel_heart", 2));
         // Artesão
         r("aurorite_bow", Profession.ARTISAN, 10, ModGear.AURORITE_BOW, 1, 40, in(gem, 3), in("minecraft:string", 3));
         r("aurorite_crossbow", Profession.ARTISAN, 10, ModGear.AURORITE_CROSSBOW, 1, 45, in(gem, 3), in("minecraft:string", 2), in("minecraft:tripwire_hook", 1));
         r("aurorite_shield", Profession.ARTISAN, 10, ModGear.AURORITE_SHIELD, 1, 45, in(gem, 3), in("#minecraft:planks", 4));
-        r("prismatic_wings", Profession.ARTISAN, 18, ModGear.PRISMATIC_WINGS, 1, 250, in("minecraft:elytra", 1), in(gem, 6), in("minecraft:prismarine_crystals", 8));
+        r("prismatic_wings", Profession.ARTISAN, 18, ModGear.PRISMATIC_WINGS, 1, 250, in("minecraft:elytra", 1), in(gem, 6), in("alvorecer:fairy_dust", 12));
         // Encantador
         for (int i = 0; i < 4; i++) {
             r("arcane_" + pieces[i], Profession.ENCHANTER, 6, ModGear.ARCANE[i], 1, 35, in("#minecraft:wool", 3 + i % 2), in("minecraft:amethyst_shard", 2 + i % 2), in("minecraft:lapis_lazuli", 3));
         }
         r("aurorite_wand", Profession.ENCHANTER, 10, ModGear.AURORITE_WAND, 1, 50, in(gem, 2), in("minecraft:amethyst_shard", 4));
-        r("arcane_staff", Profession.ENCHANTER, 15, ModGear.ARCANE_STAFF, 1, 200, in(gem, 4), in("minecraft:amethyst_block", 2), in("minecraft:ender_eye", 2));
+        r("arcane_staff", Profession.ENCHANTER, 15, ModGear.ARCANE_STAFF, 1, 200, in(gem, 4), in("minecraft:amethyst_block", 2), in("alvorecer:elemental_core", 3));
         // Caçador
-        r("shadow_daggers", Profession.HUNTER, 14, ModGear.SHADOW_DAGGERS, 1, 150, in(gem, 3), in("minecraft:phantom_membrane", 4), in("minecraft:ink_sac", 4));
+        r("shadow_daggers", Profession.HUNTER, 14, ModGear.SHADOW_DAGGERS, 1, 150, in(gem, 3), in("minecraft:phantom_membrane", 4), in("alvorecer:arcane_fang", 4));
         // Alquimista, Herbalista, Cozinheiro
         r("mana_elixir", Profession.ALCHEMIST, 2, ModGear.MANA_ELIXIR, 2, 8, in("minecraft:glass_bottle", 2), in("minecraft:lapis_lazuli", 2), in("minecraft:glowstone_dust", 1));
         r("vigor_elixir", Profession.ALCHEMIST, 2, ModGear.VIGOR_ELIXIR, 2, 8, in("minecraft:glass_bottle", 2), in("minecraft:sugar", 2), in("minecraft:redstone", 1));

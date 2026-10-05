@@ -1,0 +1,182 @@
+{
+  "goblin.ambient": {
+    "subtitle": "subtitles.alvorecer.goblin.ambient",
+    "sounds": [
+      "alvorecer:goblin/ambient"
+    ]
+  },
+  "goblin.hurt": {
+    "subtitle": "subtitles.alvorecer.goblin.hurt",
+    "sounds": [
+      "alvorecer:goblin/hurt"
+    ]
+  },
+  "goblin.death": {
+    "subtitle": "subtitles.alvorecer.goblin.death",
+    "sounds": [
+      "alvorecer:goblin/death"
+    ]
+  },
+  "goblin.leap": {
+    "subtitle": "subtitles.alvorecer.goblin.leap",
+    "sounds": [
+      "alvorecer:goblin/leap"
+    ]
+  },
+  "skeleton_warrior.ambient": {
+    "subtitle": "subtitles.alvorecer.skeleton_warrior.ambient",
+    "sounds": [
+      "alvorecer:skeleton_warrior/ambient"
+    ]
+  },
+  "skeleton_warrior.hurt": {
+    "subtitle": "subtitles.alvorecer.skeleton_warrior.hurt",
+    "sounds": [
+      "alvorecer:skeleton_warrior/hurt"
+    ]
+  },
+  "skeleton_warrior.death": {
+    "subtitle": "subtitles.alvorecer.skeleton_warrior.death",
+    "sounds": [
+      "alvorecer:skeleton_warrior/death"
+    ]
+  },
+  "skeleton_warrior.charge": {
+    "subtitle": "subtitles.alvorecer.skeleton_warrior.charge",
+    "sounds": [
+      "alvorecer:skeleton_warrior/charge"
+    ]
+  },
+  "skeleton_warrior.block": {
+    "subtitle": "subtitles.alvorecer.skeleton_warrior.block",
+    "sounds": [
+      "alvorecer:skeleton_warrior/block"
+    ]
+  },
+  "arcane_wolf.ambient": {
+    "subtitle": "subtitles.alvorecer.arcane_wolf.ambient",
+    "sounds": [
+      "alvorecer:arcane_wolf/ambient"
+    ]
+  },
+  "arcane_wolf.hurt": {
+    "subtitle": "subtitles.alvorecer.arcane_wolf.hurt",
+    "sounds": [
+      "alvorecer:arcane_wolf/hurt"
+    ]
+  },
+  "arcane_wolf.death": {
+    "subtitle": "subtitles.alvorecer.arcane_wolf.death",
+    "sounds": [
+      "alvorecer:arcane_wolf/death"
+    ]
+  },
+  "arcane_wolf.blink": {
+    "subtitle": "subtitles.alvorecer.arcane_wolf.blink",
+    "sounds": [
+      "alvorecer:arcane_wolf/blink"
+    ]
+  },
+  "elemental.ambient": {
+    "subtitle": "subtitles.alvorecer.elemental.ambient",
+    "sounds": [
+      "alvorecer:elemental/ambient"
+    ]
+  },
+  "elemental.hurt": {
+    "subtitle": "subtitles.alvorecer.elemental.hurt",
+    "sounds": [
+      "alvorecer:elemental/hurt"
+    ]
+  },
+  "elemental.death": {
+    "subtitle": "subtitles.alvorecer.elemental.death",
+    "sounds": [
+      "alvorecer:elemental/death"
+    ]
+  },
+  "elemental.shoot": {
+    "subtitle": "subtitles.alvorecer.elemental.shoot",
+    "sounds": [
+      "alvorecer:elemental/shoot"
+    ]
+  },
+  "elemental.pulse": {
+    "subtitle": "subtitles.alvorecer.elemental.pulse",
+    "sounds": [
+      "alvorecer:elemental/pulse"
+    ]
+  },
+  "stone_sentinel.ambient": {
+    "subtitle": "subtitles.alvorecer.stone_sentinel.ambient",
+    "sounds": [
+      "alvorecer:stone_sentinel/ambient"
+    ]
+  },
+  "stone_sentinel.hurt": {
+    "subtitle": "subtitles.alvorecer.stone_sentinel.hurt",
+    "sounds": [
+      "alvorecer:stone_sentinel/hurt"
+    ]
+  },
+  "stone_sentinel.death": {
+    "subtitle": "subtitles.alvorecer.stone_sentinel.death",
+    "sounds": [
+      "alvorecer:stone_sentinel/death"
+    ]
+  },
+  "stone_sentinel.slam": {
+    "subtitle": "subtitles.alvorecer.stone_sentinel.slam",
+    "sounds": [
+      "alvorecer:stone_sentinel/slam"
+    ]
+  },
+  "fairy.ambient": {
+    "subtitle": "subtitles.alvorecer.fairy.ambient",
+    "sounds": [
+      "alvorecer:fairy/ambient"
+    ]
+  },
+  "fairy.hurt": {
+    "subtitle": "subtitles.alvorecer.fairy.hurt",
+    "sounds": [
+      "alvorecer:fairy/hurt"
+    ]
+  },
+  "fairy.death": {
+    "subtitle": "subtitles.alvorecer.fairy.death",
+    "sounds": [
+      "alvorecer:fairy/death"
+    ]
+  },
+  "wyrmling.ambient": {
+    "subtitle": "subtitles.alvorecer.wyrmling.ambient",
+    "sounds": [
+      "alvorecer:wyrmling/ambient"
+    ]
+  },
+  "wyrmling.hurt": {
+    "subtitle": "subtitles.alvorecer.wyrmling.hurt",
+    "sounds": [
+      "alvorecer:wyrmling/hurt"
+    ]
+  },
+  "wyrmling.death": {
+    "subtitle": "subtitles.alvorecer.wyrmling.death",
+    "sounds": [
+      "alvorecer:wyrmling/death"
+    ]
+  },
+  "wyrmling.breath": {
+    "subtitle": "subtitles.alvorecer.wyrmling.breath",
+    "sounds": [
+      "alvorecer:wyrmling/breath"
+    ]
+  },
+  "npc.greet": {
+    "subtitle": "subtitles.alvorecer.npc.greet",
+    "sounds": [
+      "alvorecer:npc/greet"
+    ]
+  }
+}

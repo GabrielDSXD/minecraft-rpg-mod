@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_mountain",
+  "spawners": {
+    "type": "alvorecer:stone_sentinel",
+    "weight": 6,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

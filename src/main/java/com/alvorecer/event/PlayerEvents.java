@@ -169,6 +169,11 @@ public final class PlayerEvents {
     public static void onDeath(LivingDeathEvent event) {
         LivingEntity victim = event.getEntity();
         if (victim.level().isClientSide || !(event.getSource().getEntity() instanceof ServerPlayer p)) return;
+        var typeId = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(victim.getType());
+        if (typeId.getNamespace().equals(Alvorecer.MODID) && ModAttachments.get(p).bestiary.add(typeId.getPath())) {
+            p.displayClientMessage(Component.translatable("msg.alvorecer.bestiary_entry", victim.getType().getDescription()), true);
+            p.syncData(ModAttachments.RPG);
+        }
         if (!(victim instanceof Enemy) || victim instanceof Player) return;
         PlayerRpgData d = ModAttachments.get(p);
         if (d.hasTalent("barbarian_carnage")) d.energy = Math.min(Derived.maxEnergy(d), d.energy + 15);

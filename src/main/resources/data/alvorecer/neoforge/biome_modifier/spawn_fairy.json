@@ -1,0 +1,15 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": [
+    "minecraft:flower_forest",
+    "minecraft:meadow",
+    "minecraft:cherry_grove",
+    "minecraft:sunflower_plains"
+  ],
+  "spawners": {
+    "type": "alvorecer:fairy",
+    "weight": 12,
+    "minCount": 2,
+    "maxCount": 3
+  }
+}

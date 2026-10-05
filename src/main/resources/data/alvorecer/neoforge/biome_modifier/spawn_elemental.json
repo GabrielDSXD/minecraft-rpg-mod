@@ -1,0 +1,17 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": [
+    "minecraft:desert",
+    "minecraft:badlands",
+    "minecraft:snowy_plains",
+    "minecraft:ice_spikes",
+    "minecraft:snowy_taiga",
+    "minecraft:frozen_peaks"
+  ],
+  "spawners": {
+    "type": "alvorecer:elemental",
+    "weight": 25,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

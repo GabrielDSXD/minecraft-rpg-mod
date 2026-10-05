@@ -26,6 +26,11 @@ public final class ClientHooks {
         });
     }
 
+    public static void openNpc(int entityId, int role) {
+        var roles = com.alvorecer.entity.npc.NpcEntity.Role.values();
+        Minecraft.getInstance().setScreen(new NpcScreen(entityId, roles[Math.clamp(role, 0, roles.length - 1)]));
+    }
+
     /** Membros do grupo recebidos do servidor (vazio = sem grupo). */
     public static List<ModNetwork.PartyMember> partyMembers = List.of();
 

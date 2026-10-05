@@ -499,8 +499,11 @@ def armor_layers(name, p, trim, pattern="plate"):
 
     l1 = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     shade_box(l1, 0, 0, 8, 8, 8)  # cabeça
-    for x in range(8, 16):  # visor
-        l1.putpixel((x, 12), rgba(trim))
+    for x in range(8, 16):  # faixa da testa
+        l1.putpixel((x, 10), rgba(trim))
+    for x in range(9, 15):  # abertura do rosto
+        for y in range(11, 16):
+            l1.putpixel((x, y), (0, 0, 0, 0))
     shade_box(l1, 16, 16, 8, 12, 4)  # tronco
     shade_box(l1, 40, 16, 4, 12, 4)  # braço
     shade_box(l1, 0, 16, 4, 12, 4)  # perna (botas usam a parte de baixo)

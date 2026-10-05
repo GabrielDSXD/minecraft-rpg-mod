@@ -1,0 +1,15 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": [
+    "minecraft:stony_peaks",
+    "minecraft:jagged_peaks",
+    "minecraft:badlands",
+    "minecraft:windswept_hills"
+  ],
+  "spawners": {
+    "type": "alvorecer:wyrmling",
+    "weight": 10,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}
