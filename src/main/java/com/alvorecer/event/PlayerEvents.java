@@ -165,6 +165,15 @@ public final class PlayerEvents {
         if (event.getSpawnType() == MobSpawnType.SPAWNER) event.getEntity().getPersistentData().putBoolean(SPAWNER_TAG, true);
     }
 
+    /** Último Alvorecer: o Coração do Alvorecer impede a morte (com recarga). */
+    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
+    public static void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p && !event.getSource().is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && com.alvorecer.item.HeartOfDawnItem.tryRevive(p)) {
+            event.setCanceled(true);
+        }
+    }
+
     /** XP de classe por abater monstros (geradores rendem menos). */
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {

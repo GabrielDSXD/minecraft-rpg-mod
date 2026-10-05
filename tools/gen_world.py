@@ -225,7 +225,7 @@ def sky_arena():
                 for y in range(1, 8):
                     t.set(px + dx, y, pz + dz, "minecraft:quartz_pillar" if y < 7 else f"{NS}:dawnstone", {"axis": "y"} if y < 7 else None)
     t.fill(c - 1, 1, c - 1, c + 1, 1, c + 1, f"{NS}:dawnstone")
-    t.set(c, 2, c, f"{NS}:dawnstone")
+    t.set(c, 2, c, f"{NS}:dawn_altar")  # Sigilo do Primeiro Alvorecer desperta o Guardião aqui
     t.entity(c + 4, 1, c, f"{NS}:stone_sentinel")
     t.entity(c - 4, 1, c, f"{NS}:stone_sentinel")
     return t

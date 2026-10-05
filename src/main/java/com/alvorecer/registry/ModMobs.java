@@ -57,6 +57,8 @@ public final class ModMobs {
     public static final DeferredHolder<EntityType<?>, EntityType<ElementalBoltEntity>> ELEMENTAL_BOLT = E.register("elemental_bolt",
             () -> EntityType.Builder.<ElementalBoltEntity>of(ElementalBoltEntity::new, MobCategory.MISC).sized(0.4f, 0.4f)
                     .clientTrackingRange(4).updateInterval(10).build("elemental_bolt"));
+    public static final DeferredHolder<EntityType<?>, EntityType<com.alvorecer.entity.boss.DawnGuardianEntity>> DAWN_GUARDIAN = type(
+            "dawn_guardian", com.alvorecer.entity.boss.DawnGuardianEntity::new, MobCategory.MONSTER, 1.6f, 3.6f, true);
     public static final DeferredHolder<EntityType<?>, EntityType<NpcEntity>> GUILD_MASTER = type("guild_master", NpcEntity::new, MobCategory.MISC, 0.6f, 1.95f, false);
     public static final DeferredHolder<EntityType<?>, EntityType<NpcEntity>> MERCHANT = type("merchant", NpcEntity::new, MobCategory.MISC, 0.6f, 1.95f, false);
     public static final DeferredHolder<EntityType<?>, EntityType<NpcEntity>> SAGE = type("sage", NpcEntity::new, MobCategory.MISC, 0.6f, 1.95f, false);
@@ -72,6 +74,7 @@ public final class ModMobs {
         CREATURES.put("stone_sentinel", STONE_SENTINEL);
         CREATURES.put("fairy", FAIRY);
         CREATURES.put("wyrmling", WYRMLING);
+        CREATURES.put("dawn_guardian", DAWN_GUARDIAN);
         CREATURES.put("guild_master", GUILD_MASTER);
         CREATURES.put("merchant", MERCHANT);
         CREATURES.put("sage", SAGE);
@@ -100,6 +103,7 @@ public final class ModMobs {
         egg("stone_sentinel", STONE_SENTINEL, 0x7A7A7A, 0xF29E46);
         egg("fairy", FAIRY, 0xF6C6F0, 0xFFF7B0);
         egg("wyrmling", WYRMLING, 0xA8362A, 0xFFC04A);
+        egg("dawn_guardian", DAWN_GUARDIAN, 0xF2D27A, 0xFF8A1E);
         egg("guild_master", GUILD_MASTER, 0x5A3A1E, 0xE0B85A);
         egg("merchant", MERCHANT, 0x2E6B3A, 0xE8D8A0);
         egg("sage", SAGE, 0x3A2E6B, 0xC9B8FF);
@@ -124,6 +128,7 @@ public final class ModMobs {
         event.put(STONE_SENTINEL.get(), StoneSentinelEntity.createAttributes().build());
         event.put(FAIRY.get(), FairyEntity.createAttributes().build());
         event.put(WYRMLING.get(), WyrmlingEntity.createAttributes().build());
+        event.put(DAWN_GUARDIAN.get(), com.alvorecer.entity.boss.DawnGuardianEntity.createAttributes().build());
         for (var npc : new Supplier[]{GUILD_MASTER, MERCHANT, SAGE}) {
             @SuppressWarnings("unchecked") EntityType<NpcEntity> t = (EntityType<NpcEntity>) npc.get();
             event.put(t, NpcEntity.createAttributes().build());

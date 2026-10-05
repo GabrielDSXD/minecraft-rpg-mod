@@ -119,6 +119,10 @@ public class WyrmlingEntity extends RpgMonster {
         public void tick() {
             ticks++;
             LivingEntity t = getTarget();
+            if (t == null) {
+                ticks = 30;
+                return;
+            }
             getLookControl().setLookAt(t, 30, 30);
             Vec3 head = position().add(0, getBbHeight() * 0.6, 0);
             Vec3 dir = t.getEyePosition().subtract(head).normalize();

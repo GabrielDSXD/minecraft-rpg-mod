@@ -303,6 +303,7 @@ public class RpgGameTests {
         java.util.List<net.minecraft.world.entity.Mob> mobs = new java.util.ArrayList<>();
         int i = 0;
         for (var type : com.alvorecer.registry.ModMobs.CREATURES.values()) {
+            if (type == com.alvorecer.registry.ModMobs.DAWN_GUARDIAN) continue; // chefe tem testes próprios (atacaria jogadores vizinhos)
             mobs.add(h.spawn(type.get(), new BlockPos(1 + (i % 5), 2, 1 + (i / 5) * 3)));
             i++;
         }
@@ -636,6 +637,191 @@ public class RpgGameTests {
             }
             h.succeed();
         });
+    }
+
+    // ------------------------------------------------------------ Etapa 7: Guardião do Primeiro Alvorecer
+    // Lotes próprios: o Guardião considera todos os jogadores a 40 blocos (arena) e atacaria os de outros testes.
+
+    private static com.alvorecer.entity.boss.DawnGuardianEntity guardian(GameTestHelper h) {
+        var boss = h.spawn(com.alvorecer.registry.ModMobs.DAWN_GUARDIAN.get(), new BlockPos(3, 2, 3));
+        boss.setHome(h.absolutePos(new BlockPos(3, 2, 3)), false);
+        boss.setNoAi(false);
+        return boss;
+    }
+
+    /**
+     * Jogador simulado não é atualizado pela conexão, então a proteção de spawn (spawnInvulnerableTime = 60) nunca acaba;
+     * zera para os testes que medem dano recebido.
+     */
+    private static void vulnerable(ServerPlayer p) {
+        try {
+            var f = ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");
+            f.setAccessible(true);
+            f.setInt(p, 0);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** Jogador em sobrevivência com vida alta para medir dano sem morrer. */
+    private static ServerPlayer tank(GameTestHelper h, Vec3 pos) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, pos);
+        p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        vulnerable(p);
+        p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(400);
+        p.setHealth(p.getMaxHealth());
+        return p;
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 400, batch = "boss_phases")
+    public static void guardianPhasesCannotBeSkipped(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(0.5, 2, 0.5));
+        p.setInvulnerable(true);
+        var boss = guardian(h);
+        var hit = h.getLevel().damageSources().magic();
+        h.startSequence()
+                .thenExecuteAfter(2, () -> {
+                    h.assertTrue(Math.abs(boss.getMaxHealth() - com.alvorecer.config.RpgConfig.BOSS_HEALTH.get()) < 0.01, "vida para 1 jogador: " + boss.getMaxHealth());
+                    boss.hurt(hit, 100_000);
+                    h.assertTrue(Math.abs(boss.getHealth() - boss.getMaxHealth() * 2 / 3f) < 1, "golpe enorme para em 2/3: " + boss.getHealth());
+                })
+                .thenWaitUntil(() -> h.assertTrue(boss.attack() == com.alvorecer.entity.boss.DawnGuardianEntity.Attack.TRANSITION, "transição"))
+                .thenExecute(() -> {
+                    float hp = boss.getHealth();
+                    h.assertFalse(boss.hurt(hit, 50), "invulnerável na transição");
+                    h.assertTrue(boss.getHealth() == hp, "sem dano na transição");
+                })
+                .thenWaitUntil(() -> h.assertTrue(boss.phase() == 2 && !boss.busy(), "fase 2"))
+                .thenExecute(() -> {
+                    h.assertTrue(!boss.adds().isEmpty(), "Centelhas invocadas na transição");
+                    boss.hurt(hit, 100_000);
+                    h.assertTrue(Math.abs(boss.getHealth() - boss.getMaxHealth() / 3f) < 1, "para em 1/3");
+                })
+                .thenWaitUntil(() -> h.assertTrue(boss.phase() == 3, "fase 3"))
+                .thenWaitUntil(() -> h.assertTrue(boss.attack() == com.alvorecer.entity.boss.DawnGuardianEntity.Attack.DISCHARGE, "descarga logo no início da fase 3"))
+                .thenExecute(() -> {
+                    for (UUID id : boss.adds()) {
+                        var e = h.getLevel().getEntity(id);
+                        if (e != null) e.discard();
+                    }
+                    boss.discard();
+                    leave(h, p);
+                })
+                .thenSucceed();
+    }
+
+    // skyAccess: sem a tampa de barreiras do teste, que ficaria entre o Guardião flutuando e os jogadores
+    @GameTest(template = "arena", timeoutTicks = 200, batch = "boss_discharge", skyAccess = true)
+    public static void guardianDischargeSparesPlayersBehindPillars(GameTestHelper h) {
+        var stone = Blocks.STONE;
+        for (int y = 2; y <= 8; y++) {
+            for (int[] c : new int[][]{{5, 4}, {5, 5}, {5, 6}, {4, 5}, {6, 5}}) h.setBlock(c[0], y, c[1], stone);
+        }
+        ServerPlayer exposed = tank(h, new Vec3(0.5, 2, 0.5));
+        ServerPlayer hidden = tank(h, new Vec3(6.5, 2, 6.5));
+        var boss = guardian(h);
+        boss.begin(com.alvorecer.entity.boss.DawnGuardianEntity.Attack.DISCHARGE);
+        h.runAfterDelay(com.alvorecer.entity.boss.DawnGuardianEntity.DISCHARGE_CHARGE - 10, () -> {
+            h.assertTrue(exposed.getHealth() == exposed.getMaxHealth() && hidden.getHealth() == hidden.getMaxHealth(), "a carga avisa antes de ferir");
+            h.assertFalse(boss.hurt(h.getLevel().damageSources().magic(), 50), "invulnerável durante a carga");
+        });
+        h.runAfterDelay(com.alvorecer.entity.boss.DawnGuardianEntity.DISCHARGE_CHARGE + 5, () -> {
+            h.assertTrue(exposed.getMaxHealth() - exposed.getHealth() >= 20, "à vista: atingido (" + exposed.getHealth() + ") ataque="
+                    + boss.attack() + "/" + boss.attackTicks());
+            h.assertTrue(hidden.getHealth() == hidden.getMaxHealth(), "atrás do pilar: ileso (" + hidden.getHealth() + ")");
+            h.assertFalse(boss.isNoGravity(), "volta ao chão depois da descarga");
+            boss.discard();
+            leave(h, exposed);
+            leave(h, hidden);
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 160, batch = "boss_slam")
+    public static void guardianSlamIsTelegraphedThenHits(GameTestHelper h) {
+        ServerPlayer p = tank(h, new Vec3(3.5, 2, 0.5));
+        p.setOnGround(true);
+        var boss = guardian(h);
+        boss.setTarget(p);
+        int start = 1;
+        h.runAfterDelay(start, () -> boss.begin(com.alvorecer.entity.boss.DawnGuardianEntity.Attack.SLAM));
+        h.runAfterDelay(start + com.alvorecer.entity.boss.DawnGuardianEntity.SLAM_WINDUP - 3, () ->
+                h.assertTrue(p.getHealth() == p.getMaxHealth(), "aviso de " + com.alvorecer.entity.boss.DawnGuardianEntity.SLAM_WINDUP + " ticks antes do golpe"));
+        h.runAfterDelay(start + com.alvorecer.entity.boss.DawnGuardianEntity.SLAM_WINDUP + 3, () -> {
+            h.assertTrue(p.getMaxHealth() - p.getHealth() >= 8, "golpe no chão acerta dentro do anel: " + p.getHealth());
+            boss.discard();
+            leave(h, p);
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 140, batch = "boss_altar")
+    public static void altarSummonsGuardianWithSigil(GameTestHelper h) {
+        h.setBlock(3, 1, 3, com.alvorecer.registry.ModBoss.ALTAR.get());
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(1.5, 2, 1.5));
+        p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        p.setInvulnerable(true);
+        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(com.alvorecer.registry.ModBoss.DAWN_SIGIL.get(), 1));
+        h.useBlock(new BlockPos(3, 1, 3), p);
+        h.assertTrue(p.getMainHandItem().isEmpty(), "sigilo consumido");
+        h.runAfterDelay(com.alvorecer.entity.boss.DawnAltarBlock.SUMMON_DELAY + 5, () -> {
+            var bosses = h.getLevel().getEntitiesOfClass(com.alvorecer.entity.boss.DawnGuardianEntity.class,
+                    new net.minecraft.world.phys.AABB(h.absolutePos(new BlockPos(3, 2, 3))).inflate(8));
+            h.assertTrue(bosses.size() == 1, "Guardião desperto sobre o altar");
+            h.assertTrue(h.absolutePos(new BlockPos(3, 2, 3)).equals(bosses.get(0).home()), "centro da arena = altar");
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(com.alvorecer.registry.ModBoss.DAWN_SIGIL.get(), 1));
+            h.useBlock(new BlockPos(3, 1, 3), p);
+            h.assertTrue(p.getMainHandItem().getCount() == 1, "com o Guardião vivo o sigilo não é gasto");
+            bosses.get(0).discard();
+            leave(h, p);
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 40, batch = "boss_reward")
+    public static void guardianRewardsEveryParticipant(GameTestHelper h) {
+        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(0.5, 2, 0.5));
+        ServerPlayer b = player(h, Race.ELF, RpgClass.CLERIC, new Vec3(6.5, 2, 6.5));
+        a.setInvulnerable(true);
+        b.setInvulnerable(true);
+        var boss = guardian(h);
+        PlayerRpgData da = ModAttachments.get(a);
+        int levelBefore = da.level;
+        boss.hurt(h.getLevel().damageSources().playerAttack(a), 5);
+        boss.die(h.getLevel().damageSources().playerAttack(a));
+        var heart = com.alvorecer.registry.ModGear.HEART_OF_DAWN.get();
+        h.assertTrue(a.getInventory().countItem(heart) == 1 && b.getInventory().countItem(heart) == 1, "Coração para cada participante");
+        h.assertTrue(da.achievements.contains("guardian") && da.level > levelBefore, "conquista e XP");
+        boss.discard();
+        leave(h, a);
+        leave(h, b);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 120, batch = "boss_heart")
+    public static void heartOfDawnRevivesOnceThenRecharges(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 2, 3.5));
+        p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        vulnerable(p);
+        heartChecks(h, p);
+    }
+
+    private static void heartChecks(GameTestHelper h, ServerPlayer p) {
+        PlayerRpgData d = ModAttachments.get(p);
+        p.getInventory().add(new ItemStack(com.alvorecer.registry.ModGear.HEART_OF_DAWN.get()));
+        d.level = 10;
+        h.assertFalse(com.alvorecer.item.HeartOfDawnItem.tryRevive(p), "abaixo do nível 15 não funciona");
+        d.level = 15;
+        p.hurt(h.getLevel().damageSources().magic(), 10_000);
+        h.assertTrue(p.isAlive() && Math.abs(p.getHealth() - p.getMaxHealth() / 2) < 0.5f, "salvo com metade da vida: " + p.getHealth());
+        h.assertTrue(d.cooldowns.getOrDefault(com.alvorecer.item.HeartOfDawnItem.REVIVE_KEY, 0L) > h.getLevel().getGameTime(), "recarga iniciada");
+        h.assertFalse(com.alvorecer.item.HeartOfDawnItem.tryRevive(p), "não salva de novo durante a recarga");
+        p.setHealth(4);
+        var stack = p.getInventory().getItem(p.getInventory().findSlotMatchingItem(new ItemStack(com.alvorecer.registry.ModGear.HEART_OF_DAWN.get())));
+        h.assertTrue(AbilityService.useItemAbility(p, stack, "item_dawn_heart") && p.getHealth() > 4, "Aurora Renascente cura");
+        h.assertFalse(AbilityService.useItemAbility(p, stack, "item_dawn_heart"), "recarga de 5 min");
+        leave(h, p);
+        h.succeed();
     }
 
     private static final class StoneSentinelEntityTicks {

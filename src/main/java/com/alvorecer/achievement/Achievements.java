@@ -17,7 +17,7 @@ public final class Achievements {
     /** Ordem de exibição no Codex. */
     public static final List<String> ALL = List.of(
             "root", "level_5", "level_10", "level_15", "level_20", "specialization", "capstone", "first_ultimate",
-            "profession_10", "profession_20", "biomes_10", "biomes_30", "first_quest", "quests_10", "party", "portal", "aether", "dungeon");
+            "profession_10", "profession_20", "biomes_10", "biomes_30", "first_quest", "quests_10", "party", "portal", "aether", "dungeon", "guardian");
 
     private Achievements() {
     }

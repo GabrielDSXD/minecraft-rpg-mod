@@ -117,6 +117,22 @@ SOUNDS = {
     "wyrmling/breath": lambda: env(bandnoise(1.5, 0.02, 0.35) * (0.8 + 0.2 * np.sin(2 * np.pi * 9 * t(1.5))), 0.1, 0.5),
     "npc/greet": lambda: seq(env(glide(200, 230, 0.15) + 0.3 * glide(400, 460, 0.15), 0.02, 0.06),
                              env(glide(240, 210, 0.2) + 0.3 * glide(480, 420, 0.2), 0.02, 0.1), gap=0.05),
+    # Etapa 7: Guardião do Primeiro Alvorecer
+    "dawn_guardian/ambient": lambda: mix(env(glide(88, 92, 1.4, "saw", 0.02) * 0.35, 0.3, 0.5), chime(660, 1.2) * 0.3, chime(990, 1.0) * 0.15),
+    "dawn_guardian/hurt": lambda: mix(decay(mix(*[np.sin(2 * np.pi * f * t(0.6)) * a for f, a in ((420, 1), (690, 0.6), (1130, 0.35))]), 7),
+                                      decay(bandnoise(0.6, 0.05, 0.5), 12) * 0.5),
+    "dawn_guardian/death": lambda: mix(env(glide(220, 40, 3.0, "saw", 0.05) * 0.6, 0.05, 1.2),
+                                       seq(*[chime(f, 0.5) for f in (1320, 990, 880, 660, 495, 440)], gap=0.08) * 0.5),
+    "dawn_guardian/roar": lambda: mix(env(glide(110, 68, 1.6, "saw", 0.08) * 0.8, 0.1, 0.6), env(bandnoise(1.6, 0.01, 0.2), 0.1, 0.6) * 0.6),
+    "dawn_guardian/slam": lambda: mix(decay(np.sin(2 * np.pi * np.linspace(60, 28, int(SR * 1.2)) * t(1.2)), 3),
+                                      decay(bandnoise(1.2, 0.005, 0.25), 4) * 1.2),
+    "dawn_guardian/beam_charge": lambda: env(glide(300, 1400, 1.4, "sine", 0.03) * 0.7 + bandnoise(1.4, 0.2, 0.9) * 0.15, 0.05, 0.1),
+    "dawn_guardian/beam": lambda: mix(decay(bandnoise(0.9, 0.1, 0.95), 4), decay(np.sin(2 * np.pi * 1500 * t(0.9)), 5) * 0.5),
+    "dawn_guardian/ring": lambda: mix(decay(np.sin(2 * np.pi * 180 * t(1.0)), 4), env(bandnoise(1.0, 0.02, 0.3), 0.2, 0.5) * 0.5),
+    "dawn_guardian/summon": lambda: seq(*[chime(f, 0.35) for f in (330, 440, 554, 660)], gap=0.02),
+    "dawn_guardian/discharge_charge": lambda: env(glide(60, 240, 2.0, "saw", 0.0) * (0.6 + 0.4 * np.sin(2 * np.pi * 12 * t(2.0))) * 0.6, 0.2, 0.2),
+    "dawn_guardian/discharge": lambda: mix(decay(lowpass(noise(2.5), 0.08) * 3, 1.5), decay(np.sin(2 * np.pi * np.linspace(120, 30, int(SR * 2.5)) * t(2.5)), 1.5),
+                                           seq(*[chime(f, 0.6) for f in (1760, 1320, 880)], gap=0.1) * 0.4),
 }
 
 

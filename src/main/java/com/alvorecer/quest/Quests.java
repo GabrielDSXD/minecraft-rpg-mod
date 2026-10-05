@@ -61,6 +61,7 @@ public final class Quests {
         q("first_steps", Category.EXPLORATION, 1, Objective.BIOMES, "", 5, 150, 0, false, item("minecraft:map", 1));
         q("wanderer", Category.EXPLORATION, 5, Objective.BIOMES, "", 15, 600, 0, false, item("minecraft:spyglass", 1));
         q("into_the_nether", Category.EXPLORATION, 5, Objective.VISIT_DIMENSION, "minecraft:the_nether", 1, 400, 0, false, item("minecraft:fire_charge", 4));
+        q("first_dawn", Category.COMBAT, 15, Objective.KILL, "alvorecer:dawn_guardian", 1, 5000, 0, false, item("alvorecer:dawn_essence", 2));
         q("dungeon_delver", Category.EXPLORATION, 10, Objective.CLEAR_DUNGEON, "alvorecer:dungeon_champion", 1, 1500, 0, false, item("alvorecer:dawn_sigil_fragment", 1));
         q("into_the_aether", Category.EXPLORATION, 8, Objective.VISIT_DIMENSION, "alvorecer:aether_realms", 1, 1200, 0, false, item("alvorecer:aurorite_gem", 2));
         q("the_end", Category.EXPLORATION, 15, Objective.VISIT_DIMENSION, "minecraft:the_end", 1, 2000, 0, false, item("minecraft:ender_pearl", 4));

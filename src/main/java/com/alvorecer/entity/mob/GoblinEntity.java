@@ -113,6 +113,10 @@ public class GoblinEntity extends RpgMonster {
         @Override
         public void start() {
             LivingEntity t = getTarget();
+            if (t == null) { // o alvo pode sumir entre canUse e start (saiu do jogo, morreu)
+                ticks = 30;
+                return;
+            }
             Vec3 dir = new Vec3(t.getX() - getX(), 0, t.getZ() - getZ()).normalize();
             setDeltaMovement(dir.x * 1.1, 0.45, dir.z * 1.1);
             hurtMarked = true;

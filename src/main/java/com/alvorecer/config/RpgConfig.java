@@ -50,6 +50,12 @@ public final class RpgConfig {
     public static final ModConfigSpec.IntValue DUNGEON_CLEAR_XP;
     public static final ModConfigSpec.IntValue DUNGEON_CHAMPION_XP;
 
+    public static final ModConfigSpec.IntValue BOSS_HEALTH;
+    public static final ModConfigSpec.DoubleValue BOSS_HEALTH_PER_PLAYER;
+    public static final ModConfigSpec.DoubleValue BOSS_DISCHARGE_DAMAGE;
+    public static final ModConfigSpec.IntValue BOSS_XP;
+    public static final ModConfigSpec.IntValue HEART_REVIVE_MINUTES;
+
     public static final ModConfigSpec.EnumValue<RespecMode> RESPEC_MODE;
     public static final ModConfigSpec.IntValue RESPEC_COOLDOWN_MINUTES;
 
@@ -110,6 +116,14 @@ public final class RpgConfig {
         DUNGEON_DAMAGE_PER_PLAYER = b.comment("Dano extra das criaturas por jogador além do primeiro.").defineInRange("damagePerExtraPlayer", 0.15, 0.0, 5.0);
         DUNGEON_CLEAR_XP = b.comment("XP de classe para cada jogador presente ao vencer uma sala de combate (enigma: metade).").defineInRange("roomClearXp", 80, 0, 100000);
         DUNGEON_CHAMPION_XP = b.comment("XP de classe para cada jogador presente ao derrotar o campeão.").defineInRange("championXp", 400, 0, 100000);
+        b.pop();
+
+        b.comment("Guardião do Primeiro Alvorecer e Coração do Alvorecer").push("boss");
+        BOSS_HEALTH = b.comment("Vida do Guardião com 1 jogador na arena.").defineInRange("health", 800, 50, 100000);
+        BOSS_HEALTH_PER_PLAYER = b.comment("Vida extra por jogador além do primeiro na arena quando ele surge (0,5 = +50%).").defineInRange("healthPerExtraPlayer", 0.5, 0.0, 5.0);
+        BOSS_DISCHARGE_DAMAGE = b.comment("Dano da Descarga do Primeiro Alvorecer em quem estiver à vista (pilares protegem).").defineInRange("dischargeDamage", 40.0, 0.0, 1000.0);
+        BOSS_XP = b.comment("XP de classe para cada participante (não dividido).").defineInRange("xpPerPlayer", 3000, 0, 1_000_000);
+        HEART_REVIVE_MINUTES = b.comment("Recarga (minutos de jogo) do Último Alvorecer, a passiva do Coração que impede uma morte.").defineInRange("heartReviveCooldownMinutes", 20, 1, 1440);
         b.pop();
 
         b.comment("Missões").push("quests");

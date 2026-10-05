@@ -28,7 +28,7 @@ import java.util.List;
 public class CodexScreen extends Screen {
     private static final int W = 420, H = 236;
     private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "talents", "professions", "equipment",
-            "recipes", "bestiary", "world", "dungeons", "formulas", "quests", "achievements", "party", "journal", "controls", "admin"};
+            "recipes", "bestiary", "world", "dungeons", "bosses", "formulas", "quests", "achievements", "party", "journal", "controls", "admin"};
     private static final int FORMULAS_LEVEL = 3;
     private static int chapter;
     private int scroll;

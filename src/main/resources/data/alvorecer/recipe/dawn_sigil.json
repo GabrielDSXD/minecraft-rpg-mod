@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " F ",
+    "FGF",
+    " F "
+  ],
+  "key": {
+    "F": {
+      "item": "alvorecer:dawn_sigil_fragment"
+    },
+    "G": {
+      "item": "alvorecer:aurorite_gem"
+    }
+  },
+  "result": {
+    "id": "alvorecer:dawn_sigil",
+    "count": 1
+  }
+}

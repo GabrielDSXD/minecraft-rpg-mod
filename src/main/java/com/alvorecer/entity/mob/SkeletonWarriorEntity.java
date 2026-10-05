@@ -141,6 +141,10 @@ public class SkeletonWarriorEntity extends RpgMonster {
         public void tick() {
             ticks++;
             LivingEntity t = getTarget();
+            if (t == null) {
+                ticks = 30;
+                return;
+            }
             if (ticks < 10) {
                 getLookControl().setLookAt(t, 30, 30);
                 server().sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 1, getZ(), 2, 0.3, 0.5, 0.3, 0.01);

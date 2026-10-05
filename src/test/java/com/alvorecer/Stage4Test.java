@@ -25,7 +25,7 @@ class Stage4Test {
     @Test
     void everyCreatureHasTextsEggLootAndAttributes() throws Exception {
         JsonObject lang = json("/assets/alvorecer/lang/pt_br.json");
-        assertEquals(10, ModMobs.CREATURES.size(), "7 criaturas + 3 NPCs");
+        assertEquals(11, ModMobs.CREATURES.size(), "7 criaturas + chefe + 3 NPCs");
         for (var e : ModMobs.CREATURES.entrySet()) {
             String id = e.getKey();
             assertTrue(lang.has("entity.alvorecer." + id), id);
@@ -53,7 +53,7 @@ class Stage4Test {
             assertTrue(lang.has("subtitles.alvorecer." + name), "legenda " + name);
             count++;
         }
-        assertEquals(30, count);
+        assertEquals(41, count, "30 das criaturas e NPCs + 11 do Guardião");
     }
 
     @Test

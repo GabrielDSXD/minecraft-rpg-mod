@@ -303,6 +303,8 @@ import lang_stage5  # noqa: E402
 lang_stage5.register(add)
 import lang_stage6  # noqa: E402
 lang_stage6.register(add)
+import lang_stage7  # noqa: E402
+lang_stage7.register(add)
 
 os.makedirs(ROOT, exist_ok=True)
 for name in ("pt_br.json", "en_us.json"):

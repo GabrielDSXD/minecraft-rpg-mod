@@ -52,6 +52,7 @@ public final class ClientMobs {
         event.registerLayerDefinition(MobModels.FAIRY, MobModels::fairyLayer);
         event.registerLayerDefinition(MobModels.WYRMLING, MobModels::wyrmlingLayer);
         event.registerLayerDefinition(MobModels.NPC, MobModels::npcLayer);
+        event.registerLayerDefinition(GuardianModel.LAYER, GuardianModel::layer);
     }
 
     /** Camada com brilho próprio (olhos, runas, núcleo), desenhada em brilho total. */
@@ -120,6 +121,9 @@ public final class ClientMobs {
         event.registerEntityRenderer(ModMobs.WYRMLING.get(), ctx -> new SimpleRenderer<WyrmlingEntity, MobModels.WyrmlingModel>(
                 ctx, new MobModels.WyrmlingModel(ctx.bakeLayer(MobModels.WYRMLING)), 0.6f, e -> wyrm, null));
         event.registerEntityRenderer(ModMobs.ELEMENTAL_BOLT.get(), NoopRenderer::new);
+        ResourceLocation guardian = tex("dawn_guardian"), guardianGlow = tex("dawn_guardian_glow"), guardianCharge = tex("dawn_guardian_charge");
+        event.registerEntityRenderer(ModMobs.DAWN_GUARDIAN.get(), ctx -> new SimpleRenderer<com.alvorecer.entity.boss.DawnGuardianEntity, GuardianModel>(
+                ctx, new GuardianModel(ctx.bakeLayer(GuardianModel.LAYER)), 1.4f, e -> guardian, e -> GuardianModel.charging(e) ? guardianCharge : guardianGlow));
         for (var npc : new java.util.function.Supplier[]{ModMobs.GUILD_MASTER, ModMobs.MERCHANT, ModMobs.SAGE}) {
             @SuppressWarnings("unchecked") var type = (net.minecraft.world.entity.EntityType<NpcEntity>) npc.get();
             event.registerEntityRenderer(type, ctx -> new ScaledHumanoid<NpcEntity, MobModels.NpcModel>(

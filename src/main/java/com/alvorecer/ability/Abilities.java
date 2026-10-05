@@ -184,7 +184,7 @@ public final class Abilities {
     }
 
     /** Habilidades de itens (cajados, varinhas e armas especiais): usadas com o botão direito. */
-    public static final List<String> ITEM_ABILITIES = List.of("staff_arcane_bolt", "wand_bolt", "item_solar_wave", "item_dawn_dash", "item_shadow_evasion");
+    public static final List<String> ITEM_ABILITIES = List.of("staff_arcane_bolt", "wand_bolt", "item_solar_wave", "item_dawn_dash", "item_shadow_evasion", "item_dawn_heart");
 
     private static void registerItems() {
         reg("staff_arcane_bolt", Resource.MANA, 4, 0.8, School.ARCANE, Stat.INT, false, (p, d, level, power) -> {
@@ -202,6 +202,23 @@ public final class Abilities {
             line(level, ParticleTypes.WITCH, p.getEyePosition().subtract(0, 0.3, 0), chest(t), 0.4);
             damage(t, spell(p, ModDamageTypes.ARCANE), (float) (3 * power));
             sound(level, p.position(), SoundEvents.AMETHYST_BLOCK_RESONATE, 0.6f, 2.0f);
+            return true;
+        });
+
+        reg("item_dawn_heart", Resource.NONE, 0, 300, School.DIVINE, Stat.WIS, false, (p, d, level, power) -> {
+            sound(level, p.position(), SoundEvents.BEACON_ACTIVATE, 1.2f, 1.3f);
+            level.sendParticles(ParticleTypes.END_ROD, p.getX(), p.getY() + 1, p.getZ(), 80, 3, 1, 3, 0.05);
+            for (ServerPlayer ally : com.alvorecer.party.Parties.nearbyMembers(p)) {
+                if (ally.distanceToSqr(p) > 12 * 12) continue;
+                heal(p, ally, ally.getMaxHealth() * 0.4f);
+                ally.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 120, 1));
+                ally.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 1));
+            }
+            for (LivingEntity t : enemiesAround(p, p.position(), 6)) {
+                damage(t, spell(p, ModDamageTypes.RADIANT), (float) (12 * power * (isUndead(t) ? 2 : 1)));
+                Vec3 away = t.position().subtract(p.position()).normalize();
+                t.knockback(1.0, -away.x, -away.z);
+            }
             return true;
         });
 

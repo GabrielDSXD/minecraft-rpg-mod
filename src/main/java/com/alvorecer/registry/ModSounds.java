@@ -15,9 +15,11 @@ public final class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, Alvorecer.MODID);
     private static final Map<String, DeferredHolder<SoundEvent, SoundEvent>> ALL = new LinkedHashMap<>();
 
-    public static final String[] CREATURES = {"goblin", "skeleton_warrior", "arcane_wolf", "elemental", "stone_sentinel", "fairy", "wyrmling"};
+    public static final String[] CREATURES = {"goblin", "skeleton_warrior", "arcane_wolf", "elemental", "stone_sentinel", "fairy", "wyrmling", "dawn_guardian"};
     public static final String[] SPECIALS = {"goblin.leap", "skeleton_warrior.charge", "skeleton_warrior.block", "arcane_wolf.blink",
-            "elemental.shoot", "elemental.pulse", "stone_sentinel.slam", "wyrmling.breath", "npc.greet"};
+            "elemental.shoot", "elemental.pulse", "stone_sentinel.slam", "wyrmling.breath", "npc.greet",
+            "dawn_guardian.roar", "dawn_guardian.slam", "dawn_guardian.beam_charge", "dawn_guardian.beam", "dawn_guardian.ring",
+            "dawn_guardian.summon", "dawn_guardian.discharge_charge", "dawn_guardian.discharge"};
 
     static {
         for (String c : CREATURES) {

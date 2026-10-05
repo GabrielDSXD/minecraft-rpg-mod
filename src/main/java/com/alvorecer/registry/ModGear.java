@@ -280,6 +280,9 @@ public final class ModGear {
             new Item.Properties().fireResistant(), GearInfo.of(LEGENDARY, 14).bonus(MELEE, 0.12).bonus(SPEED, 0.05).ability("item_dawn_dash"));
     public static final DeferredItem<SwordItem> SHADOW_DAGGERS = weapon("shadow_daggers", A, Melee.DAGGER, 0.5f,
             new Item.Properties().fireResistant(), GearInfo.of(EPIC, 12).bonus(CRIT_CHANCE, 0.08).bonus(SNEAK_ATTACK, 0.5).ability("item_shadow_evasion"));
+    public static final DeferredItem<com.alvorecer.item.HeartOfDawnItem> HEART_OF_DAWN = gear("heart_of_dawn",
+            () -> new com.alvorecer.item.HeartOfDawnItem(new Item.Properties().stacksTo(1).fireResistant().rarity(net.minecraft.world.item.Rarity.EPIC)),
+            GearInfo.of(LEGENDARY, com.alvorecer.item.HeartOfDawnItem.LEVEL).bonus(HEALING, 0.15).bonus(MAGIC_RESIST, 0.10).ability("item_dawn_heart").build());
     public static final DeferredItem<ElytraItem> PRISMATIC_WINGS = gear("prismatic_wings",
             () -> new ElytraItem(new Item.Properties().durability(864).rarity(net.minecraft.world.item.Rarity.EPIC)),
             GearInfo.of(EPIC, 15).build());

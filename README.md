@@ -89,6 +89,11 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 - Grupo e dificuldade: o selo conta os jogadores a 24 blocos — cada um além do primeiro adiciona criaturas por onda e vida/dano (`dungeons.*`); solo usa só a base.
 - Recompensas: XP de abate pela regra do grupo; XP de conclusão para cada jogador presente (sem divisão); Relicário com saque individual uma vez por jogador (sempre 1 Fragmento do Sigilo); baús comuns. Missão "Explorador das Profundezas", conquista "Campeão Derrubado", capítulo "Masmorras" no Codex.
 
+### Etapa 7 — Guardião do Primeiro Alvorecer (implementada; validação visual incompleta)
+- Chefe com 3 fases (golpe no chão telegrafado, raio com mira travada, anéis expansivos, Centelhas, transições invulneráveis) e a Descarga do Primeiro Alvorecer na fase 3 (5 s de carga; só quem está atrás de um pilar escapa). Vida escala com os jogadores; barra de chefe; sons próprios.
+- Invocação: Sigilo do Primeiro Alvorecer (Fragmentos dos Relicários) no Altar do Alvorecer, no centro da Arena Celeste. Recompensas: XP para cada participante, Coração do Alvorecer (Aurora Renascente, recarga 5 min; Último Alvorecer impede uma morte, recarga 20 min; nível 15), Essência do Alvorecer e outros materiais.
+- Testado: 44 testes JUnit e 32 GameTests (fases sem pulos, invulnerabilidade, Descarga poupa quem está atrás do pilar, golpe telegrafado, altar, recompensas, Coração). No cliente: invocação pelo altar e barra de chefe vistas; modelo/animações ainda não conferidos com clareza.
+
 ### Testes (estado atual)
 - `./gradlew build`: 40 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas), dados do mundo (estruturas → moldes, conjuntos, tags e loot; biomas, ordem das features, temperatura sem neve nas ilhas, dimensão, missão e conquistas), masmorras (planta em 300 sementes, fórmulas de escala, moldes NBT com selos, runas alinhadas aos glifos, piso de espinhos, relicário e abertura do poço; textos, saque com fragmento). Todos passando.
 - `./gradlew runGameTestServer`: 26 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental, NPCs (comércio, proteção e missões), Chave do Alvorecer (moldura incompleta recusada, acendimento, durabilidade, conquista, busca por POI, quebra da moldura apaga o portal) e portal de retorno (construção, saída na plataforma, terreno de chunk não carregado), masmorras (selo com 2 ondas, portão abrindo e XP de conclusão; escala com 2 jogadores; campeão; enigma de runas; espinhos com aviso; relicário uma vez por jogador; sala gerada dentro de água continua seca). Todos passando. O GameTest usa um mundo plano próprio em `run/gametest`, sem as dimensões de datapack; a viagem até o Éter é validada no servidor dedicado.
@@ -99,7 +104,6 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 
 ## Próximas etapas (ainda não implementadas)
 
-7. Chefe Guardião do Primeiro Alvorecer (3 fases) e o Coração do Alvorecer.
 
 ## Estrutura
 

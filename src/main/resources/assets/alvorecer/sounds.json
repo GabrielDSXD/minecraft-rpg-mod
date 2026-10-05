@@ -178,5 +178,71 @@
     "sounds": [
       "alvorecer:npc/greet"
     ]
+  },
+  "dawn_guardian.ambient": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.ambient",
+    "sounds": [
+      "alvorecer:dawn_guardian/ambient"
+    ]
+  },
+  "dawn_guardian.hurt": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.hurt",
+    "sounds": [
+      "alvorecer:dawn_guardian/hurt"
+    ]
+  },
+  "dawn_guardian.death": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.death",
+    "sounds": [
+      "alvorecer:dawn_guardian/death"
+    ]
+  },
+  "dawn_guardian.roar": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.roar",
+    "sounds": [
+      "alvorecer:dawn_guardian/roar"
+    ]
+  },
+  "dawn_guardian.slam": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.slam",
+    "sounds": [
+      "alvorecer:dawn_guardian/slam"
+    ]
+  },
+  "dawn_guardian.beam_charge": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.beam_charge",
+    "sounds": [
+      "alvorecer:dawn_guardian/beam_charge"
+    ]
+  },
+  "dawn_guardian.beam": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.beam",
+    "sounds": [
+      "alvorecer:dawn_guardian/beam"
+    ]
+  },
+  "dawn_guardian.ring": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.ring",
+    "sounds": [
+      "alvorecer:dawn_guardian/ring"
+    ]
+  },
+  "dawn_guardian.summon": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.summon",
+    "sounds": [
+      "alvorecer:dawn_guardian/summon"
+    ]
+  },
+  "dawn_guardian.discharge_charge": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.discharge_charge",
+    "sounds": [
+      "alvorecer:dawn_guardian/discharge_charge"
+    ]
+  },
+  "dawn_guardian.discharge": {
+    "subtitle": "subtitles.alvorecer.dawn_guardian.discharge",
+    "sounds": [
+      "alvorecer:dawn_guardian/discharge"
+    ]
   }
 }

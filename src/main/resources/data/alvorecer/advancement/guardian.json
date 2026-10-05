@@ -1,0 +1,23 @@
+{
+  "parent": "alvorecer:dungeon",
+  "display": {
+    "icon": {
+      "id": "alvorecer:heart_of_dawn"
+    },
+    "title": {
+      "translate": "advancement.alvorecer.guardian"
+    },
+    "description": {
+      "translate": "advancement.alvorecer.guardian.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}
