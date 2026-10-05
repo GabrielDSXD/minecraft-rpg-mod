@@ -271,13 +271,13 @@ add("codex.alvorecer.formulas",
     "• Proficiência = 2 + (nível − 1) ÷ 4.\n"
     "• CD de resistência = 8 + proficiência + modificador do atributo da habilidade.\n"
     "• Teste de resistência = d20 + modificador (+ proficiência se a classe for proficiente) ≥ CD; 20 natural sempre passa e 1 natural sempre falha. Criaturas somam vida máxima ÷ 10 (máx. +8).\n"
-    "• Poder = (1 + 4% × (nível − 1)) × (1 + 6% × modificador) × fator racial da escola × multiplicador do servidor.\n"
+    "• Poder = (1 + 4% × (nível − 1)) × (1 + 6% × modificador) × fator racial da escola × (1 + talentos da escola) × multiplicador do servidor.\n"
     "• Habilidades físicas usam o dano da arma em mãos e depois recebem os bônus normais de golpe (Força, crítico).\n"
-    "• Custo final = base × servidor × 1,5 (Anão, mobilidade) × 1,1 (Orc, mana) × (1 + 10% por peça de armadura acima da classe, mana).\n\n"
+    "• Custo final = base × servidor × 1,5 (Anão, mobilidade) × 1,1 (Orc, mana) × (1 + 10% por peça de armadura acima da classe, mana) × (1 − redução de talentos, máx. 60%). Recarga = base × servidor × (1 − redução de talentos, máx. 50%).\n\n"
     "COMBATE\n"
-    "• Crítico: 5% + 1% × mod DES (+5% Ladino, +3% Halfling), máximo 50%; multiplicador ×1,5 (Ladino ×1,75). Vale para golpes, flechas e habilidades.\n"
+    "• Crítico: 5% + 1% × mod DES (+5% Ladino, +3% Halfling) + talentos, máximo 60%; multiplicador ×1,5 (Ladino ×1,75) + talentos. Vale para golpes, flechas e habilidades.\n"
     "• Corpo a corpo × (1 + 4% × mod FOR); à distância × (1 + 4% × mod DES).\n"
-    "• Dano recebido (em ordem): Esquiva → elemento racial → veneno racial → resistência mágica (1,5% × mod SAB, máx. 30%) → Pele de Pedra ×0,6 → Fúria Orc ×1,2 → Fúria Bárbara ×0,75 (físico) → armadura vanilla.\n"
+    "• Dano recebido (em ordem): Esquiva → elemento racial → veneno racial → resistência mágica (1,5% × mod SAB + talentos, máx. 45%) → Pele de Pedra ×0,6 → Fúria Orc ×1,2 → Fúria Bárbara ×0,75 (físico) → redução de talentos (máx. 40%) → armadura vanilla.\n"
     "• Efeitos negativos de outras fontes pedem teste (CD 15, configurável): CON contra veneno, murchar e fome; DES contra lentidão, levitação, atordoamento e enraizamento; SAB contra os demais.\n\n"
     "RECURSOS\n"
     "• Vida extra = (nível − 1) × dado de vida da classe + 2 × mod CON (Elfo −4).\n"
@@ -289,8 +289,12 @@ add("codex.alvorecer.controls", "Todas as teclas podem ser alteradas em Opções
 add("codex.alvorecer.admin",
     "CONFIGURAÇÃO\nO arquivo serverconfig/alvorecer-server.toml dentro da pasta do mundo controla: multiplicadores de XP, XP de geradores e de exploração, XP e limite diário de profissões, nível da profissão secundária, custo/recarga/dano das habilidades, regras de PvP (habilidades em jogadores, multiplicador de dano, efeitos de controle), testes de resistência e o modo de troca de personagem (ADMIN_ONLY, ITEM ou FREE) com sua recarga.\n\n"
     "COMANDOS (nível de permissão 2)\n"
-    "• /rpg info [jogador]\n• /rpg reset <jogador> — apaga as escolhas e reabre a criação\n• /rpg setlevel <jogador> <nível>\n• /rpg addxp <jogador> <quantidade>\n• /rpg proflevel <jogador> <nível>\n• /rpg cooldowns <jogador>\n\n"
+    "• /rpg info [jogador]\n• /rpg reset <jogador> — apaga as escolhas e reabre a criação\n• /rpg setlevel <jogador> <nível>\n• /rpg addxp <jogador> <quantidade>\n• /rpg proflevel <jogador> <nível>\n• /rpg resettalents <jogador>\n• /rpg cooldowns <jogador>\n\n"
     "JOGADORES\n• /rpg info — sua ficha resumida\n• /rpg respec — só no modo FREE")
+
+sys.path.insert(0, os.path.dirname(__file__))
+import lang_stage2  # noqa: E402
+lang_stage2.register(add)
 
 os.makedirs(ROOT, exist_ok=True)
 for name in ("pt_br.json", "en_us.json"):

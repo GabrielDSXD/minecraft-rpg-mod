@@ -12,6 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -39,6 +40,7 @@ public class AlvorecerClient {
     };
     public static final KeyMapping SHEET = key("sheet", GLFW.GLFW_KEY_K);
     public static final KeyMapping CODEX = key("codex", GLFW.GLFW_KEY_J);
+    public static final KeyMapping TALENTS = key("talents", GLFW.GLFW_KEY_Y);
 
     private static KeyMapping key(String name, int code) {
         return new KeyMapping("key.alvorecer." + name, KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, code, CATEGORY);
@@ -49,12 +51,14 @@ public class AlvorecerClient {
         modBus.addListener(AlvorecerClient::registerLayers);
         modBus.addListener(AlvorecerClient::registerRenderers);
         NeoForge.EVENT_BUS.addListener(AlvorecerClient::onClientTick);
+        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> ClientHooks.party(java.util.List.of()));
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {
         for (KeyMapping k : ABILITY_KEYS) event.register(k);
         event.register(SHEET);
         event.register(CODEX);
+        event.register(TALENTS);
     }
 
     private static void registerLayers(RegisterGuiLayersEvent event) {
@@ -75,5 +79,6 @@ public class AlvorecerClient {
         }
         while (SHEET.consumeClick()) ClientHooks.openScreen(ModNetwork.Screen.SHEET.ordinal());
         while (CODEX.consumeClick()) ClientHooks.openScreen(ModNetwork.Screen.CODEX.ordinal());
+        while (TALENTS.consumeClick()) ClientHooks.openScreen(ModNetwork.Screen.TALENTS.ordinal());
     }
 }

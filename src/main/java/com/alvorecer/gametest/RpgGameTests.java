@@ -157,4 +157,76 @@ public class RpgGameTests {
         leave(h, p);
         h.succeed();
     }
+
+    @GameTest(template = "arena")
+    public static void talentSpendingIsValidatedOnServer(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(3.5, 1, 3.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        ModNetwork.onSpendTalent(p, "warrior_tough_hide");
+        h.assertTrue(d.talents.isEmpty(), "sem pontos no nível 1");
+        d.level = 6;
+        float hp = p.getMaxHealth();
+        ModNetwork.onSpendTalent(p, "warrior_tough_hide");
+        h.assertTrue(d.talents.getOrDefault("warrior_tough_hide", 0) == 1, "talento devia ter sido aprendido");
+        h.assertTrue(p.getMaxHealth() > hp, "Pele Curtida deve aumentar a vida máxima");
+        ModNetwork.onSpendTalent(p, "warrior_tactics");
+        h.assertFalse(d.talents.containsKey("warrior_tactics"), "tier 2 sem os 3 pontos do tier 1 deve ser recusado");
+        ModNetwork.onChooseSpec(p, "warrior_defender");
+        h.assertTrue("warrior_defender".equals(d.specialization), "especialização no nível 6");
+        h.assertTrue(d.achievements.contains("specialization"), "conquista de especialização");
+        leave(h, p);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena")
+    public static void partySharesXpAndBlocksFriendlyFire(GameTestHelper h) {
+        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(2.5, 1, 2.5));
+        ServerPlayer b = player(h, Race.ELF, RpgClass.CLERIC, new Vec3(4.5, 1, 2.5));
+        h.assertTrue(com.alvorecer.party.Parties.invite(a, b), "convite");
+        h.assertTrue(com.alvorecer.party.Parties.accept(b), "aceite");
+        h.assertTrue(com.alvorecer.party.Parties.sameParty(a, b), "mesmo grupo");
+        h.assertTrue(com.alvorecer.ability.AbilityUtil.isAlly(a, b), "membros são aliados para as habilidades");
+
+        Zombie zombie = zombie(h, 3.5, 4.5);
+        zombie.hurt(a.damageSources().playerAttack(a), 1000);
+        PlayerRpgData da = ModAttachments.get(a), db = ModAttachments.get(b);
+        long expected = com.alvorecer.party.Parties.shareXp(com.alvorecer.rpg.Progression.killXp(20, 2), 2, 0.1);
+        h.assertTrue(db.xp > 0, "o outro membro devia receber XP do abate");
+        h.assertTrue(Math.abs(da.xp - db.xp) <= 2 && Math.abs(db.xp - Math.round(expected * (db.race == Race.HUMAN ? 1.1 : 1))) <= 2,
+                "XP dividido de forma igual (a=" + da.xp + ", b=" + db.xp + ", esperado~" + expected + ")");
+
+        float hp = b.getHealth();
+        b.hurt(a.damageSources().playerAttack(a), 4);
+        h.assertTrue(b.getHealth() == hp, "fogo amigo desativado por padrão");
+        com.alvorecer.party.Parties.leave(b);
+        h.assertFalse(com.alvorecer.party.Parties.sameParty(a, b), "grupo desfeito");
+        leave(h, a);
+        leave(h, b);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 200)
+    public static void questBoardAcceptKillAndComplete(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.ORC, RpgClass.BARBARIAN, new Vec3(3.5, 1, 3.5));
+        PlayerRpgData d = ModAttachments.get(p);
+        BlockPos board = new BlockPos(1, 1, 1);
+        h.setBlock(board, com.alvorecer.registry.ModBlocks.QUEST_BOARD.get());
+        h.assertFalse(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "sem abrir o mural não pode aceitar");
+        d.lastBoardPos = h.absolutePos(board);
+        h.assertTrue(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "aceitar perto do mural");
+        h.assertFalse(com.alvorecer.quest.Quests.complete(p, "zombie_hunt"), "não pode entregar sem progresso");
+        for (int i = 0; i < 10; i++) {
+            Zombie z = zombie(h, 3.5, 5.5);
+            z.hurt(p.damageSources().playerAttack(p), 1000);
+        }
+        h.assertTrue(d.activeQuests.get("zombie_hunt") == 10, "10 abates contados, contou " + d.activeQuests.get("zombie_hunt"));
+        int iron = p.getInventory().countItem(Items.IRON_INGOT);
+        h.assertTrue(com.alvorecer.quest.Quests.complete(p, "zombie_hunt"), "entrega");
+        h.assertTrue(p.getInventory().countItem(Items.IRON_INGOT) == iron + 3, "recompensa: 3 lingotes de ferro");
+        h.assertTrue(d.completedQuests.containsKey("zombie_hunt") && !d.activeQuests.containsKey("zombie_hunt"), "missão concluída");
+        h.assertTrue(d.achievements.contains("first_quest"), "conquista da primeira missão");
+        h.assertFalse(com.alvorecer.quest.Quests.accept(p, "zombie_hunt"), "diária em espera");
+        leave(h, p);
+        h.succeed();
+    }
 }

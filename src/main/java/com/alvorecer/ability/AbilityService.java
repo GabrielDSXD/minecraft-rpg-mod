@@ -58,11 +58,12 @@ public final class AbilityService {
             if (d.race == Race.ORC) c *= 1.1;
             c *= 1 + 0.1 * heavyArmorPieces;
         }
-        return (float) c;
+        return (float) (c * (1 - Derived.costReduction(d)));
     }
 
-    public static int cooldown(Ability a, double configMultiplier) {
-        return (int) Math.round(a.cooldownTicks() * configMultiplier);
+    /** Recarga final: base × servidor × (1 − redução de talentos). */
+    public static int cooldown(PlayerRpgData d, Ability a, double configMultiplier) {
+        return (int) Math.round(a.cooldownTicks() * configMultiplier * (1 - Derived.cooldownReduction(d)));
     }
 
     /** Validação pura (testada em AbilityValidationTest). */
@@ -116,8 +117,9 @@ public final class AbilityService {
         if (!a.executor().run(p, d, p.serverLevel(), power)) return;
         if (a.resource() == Resource.MANA) d.mana -= cost;
         else if (a.resource() == Resource.ENERGY) d.energy -= cost;
-        d.cooldowns.put(id, now + cooldown(a, RpgConfig.COOLDOWN_MULTIPLIER.get()));
+        d.cooldowns.put(id, now + cooldown(d, a, RpgConfig.COOLDOWN_MULTIPLIER.get()));
         d.cooldowns.values().removeIf(end -> end <= now);
+        if (slot == SLOT_ULTIMATE) com.alvorecer.achievement.Achievements.grant(p, "first_ultimate");
         p.syncData(ModAttachments.RPG);
     }
 }

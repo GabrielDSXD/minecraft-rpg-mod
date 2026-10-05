@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:enchanted_book"
+    },
+    "title": {
+      "translate": "advancement.alvorecer.specialization"
+    },
+    "description": {
+      "translate": "advancement.alvorecer.specialization.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "alvorecer:level_5"
+}

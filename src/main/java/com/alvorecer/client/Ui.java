@@ -84,6 +84,13 @@ public final class Ui {
         return line.withStyle(ChatFormatting.GRAY);
     }
 
+    /** "+4% de dano corpo a corpo", "+2 de vida máxima"... a partir do tipo de bônus. */
+    public static Component bonusLine(com.alvorecer.rpg.talent.Talent.Bonus b, int ranks) {
+        double v = b.amount() * ranks;
+        String value = b.type().percent ? (Math.round(v * 1000) / 10.0 + "%").replace(".0%", "%") : (v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(v));
+        return Component.translatable(b.type().langKey(), value).withStyle(ChatFormatting.GREEN);
+    }
+
     /** Bloco de texto (nome, custo, descrição) de uma habilidade. */
     public static List<Component> abilityBlock(Ability a, Component prefix) {
         List<Component> out = new ArrayList<>();

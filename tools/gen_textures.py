@@ -95,7 +95,27 @@ ICONS = {
                         d.polygon([(3, 8), (14, 8), (9, 15)], fill=(244, 143, 177, 255)), d.point((5, 6), fill=(255, 220, 230, 255))),
 }
 
+def quest_board():
+    img = Image.new("RGBA", (16, 16), (66, 43, 21, 255))
+    d = ImageDraw.Draw(img)
+    d.rectangle([1, 1, 14, 14], fill=(176, 132, 82, 255))  # cortiça
+    for x, y in ((3, 4), (9, 3), (5, 10), (11, 9)):
+        d.point((x + 1, y + 2), fill=(150, 108, 64, 255))
+    papers = [((2, 2, 7, 8), (200, 40, 40)), ((9, 2, 13, 7), (40, 90, 200)), ((3, 9, 8, 13), (40, 160, 60)), ((9, 9, 13, 13), (220, 180, 40))]
+    for (x0, y0, x1, y1), pin in papers:
+        d.rectangle([x0, y0, x1, y1], fill=(236, 228, 206, 255))
+        for ly in range(y0 + 2, y1, 2):
+            d.line([x0 + 1, ly, x1 - 1, ly], fill=(150, 140, 120, 255))
+        d.point(((x0 + x1) // 2, y0), fill=pin + (255,))
+    for i in range(16):  # veios da moldura
+        if i % 5 == 0:
+            d.point((i, 0), fill=(48, 30, 14, 255))
+            d.point((0, i), fill=(48, 30, 14, 255))
+    return img
+
+
 if __name__ == "__main__":
+    save(quest_board(), "block", "quest_board.png")
     save(book((59, 31, 74, 255), (224, 184, 90, 255), sun), "item", "codex.png")
     save(book((36, 92, 60, 255), (200, 200, 210, 255), cycle), "item", "respec_tome.png")
     for name, fn in ICONS.items():

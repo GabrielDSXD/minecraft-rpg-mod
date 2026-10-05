@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -43,10 +44,12 @@ public final class AbilityUtil {
     /** Jogadores só são inimigos se o PvP do servidor, das equipes e da configuração permitir. */
     public static boolean canHarmPlayer(ServerPlayer caster, Player other) {
         if (other == caster || other.isSpectator() || other.isCreative()) return false;
-        return RpgConfig.PVP_ABILITIES.get() && caster.server.isPvpAllowed() && caster.canHarmPlayer(other);
+        return RpgConfig.PVP_ABILITIES.get() && caster.server.isPvpAllowed() && caster.canHarmPlayer(other)
+                && !com.alvorecer.party.Parties.sameParty(caster, other);
     }
 
     public static boolean isAlly(ServerPlayer caster, Entity e) {
+        if (e instanceof Player other && com.alvorecer.party.Parties.sameParty(caster, other)) return true;
         if (e == caster) return true;
         if (e instanceof Player other) return !canHarmPlayer(caster, other);
         if (e instanceof OwnableEntity owned && caster.getUUID().equals(owned.getOwnerUUID())) return true;
@@ -140,8 +143,11 @@ public final class AbilityUtil {
         return target.hurt(source, a);
     }
 
-    public static void heal(LivingEntity target, float amount) {
-        target.heal((float) (amount * RpgConfig.ABILITY_DAMAGE_MULTIPLIER.get()));
+    /** Cura de habilidade: × configuração × bônus de cura do conjurador; Luz Persistente (Clérigo) adiciona Regeneração I por 4 s. */
+    public static void heal(ServerPlayer caster, LivingEntity target, float amount) {
+        PlayerRpgData d = ModAttachments.get(caster);
+        target.heal((float) (amount * RpgConfig.ABILITY_DAMAGE_MULTIPLIER.get() * Derived.healingMultiplier(d)));
+        if (d.hasTalent("cleric_lingering_light")) target.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 80, 0), caster);
     }
 
     /** Aplica efeito negativo; contra jogadores respeita a configuração de efeitos de controle. */

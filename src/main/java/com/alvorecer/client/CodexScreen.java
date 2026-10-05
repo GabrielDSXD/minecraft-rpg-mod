@@ -27,7 +27,8 @@ import java.util.List;
  */
 public class CodexScreen extends Screen {
     private static final int W = 420, H = 236;
-    private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "professions", "formulas", "journal", "controls", "admin"};
+    private static final String[] CHAPTERS = {"history", "attributes", "races", "classes", "talents", "professions", "formulas",
+            "quests", "achievements", "party", "journal", "controls", "admin"};
     private static final int FORMULAS_LEVEL = 3;
     private static int chapter;
     private int scroll;
@@ -55,7 +56,7 @@ public class CodexScreen extends Screen {
                 chapter = c;
                 scroll = 0;
                 rebuildWidgets();
-            }).bounds(left() + 8, top() + 22 + i * 19, 100, 17).build());
+            }).bounds(left() + 8, top() + 20 + i * 16, 100, 15).build());
         }
         build();
     }
@@ -107,6 +108,52 @@ public class CodexScreen extends Screen {
                     out.addAll(Ui.abilityBlock(Abilities.get(p.abilityId), Component.translatable("ui.alvorecer.active").append(" ")));
                 }
             }
+            case "talents" -> {
+                out.add(Component.translatable("codex.alvorecer.talents"));
+                for (RpgClass c : RpgClass.values()) {
+                    out.add(Component.empty());
+                    out.add(Component.translatable(c.langKey()).withStyle(ChatFormatting.YELLOW));
+                    for (var s : com.alvorecer.rpg.talent.Talents.specsFor(c)) {
+                        var line = Component.translatable("ui.alvorecer.spec").append(": ").append(Component.translatable(s.nameKey()).withStyle(ChatFormatting.AQUA)).append(" - ");
+                        for (var b : s.bonuses()) line.append(Ui.bonusLine(b, 1)).append(" ");
+                        out.add(line);
+                    }
+                    for (var t : com.alvorecer.rpg.talent.Talents.forClass(c)) {
+                        var line = Component.literal("T" + t.tier() + " ").append(Component.translatable(t.nameKey()).withStyle(ChatFormatting.GOLD)).append(" - ");
+                        if (t.special()) line.append(Component.translatable(t.descKey())).append(" ");
+                        for (var b : t.perRank()) line.append(Ui.bonusLine(b, 1)).append(t.maxRank() > 1 ? Component.translatable("ui.alvorecer.per_rank") : Component.empty()).append(" ");
+                        out.add(line);
+                    }
+                }
+            }
+            case "quests" -> {
+                PlayerRpgData d = data();
+                long now = minecraft.player.level().getGameTime();
+                out.add(Component.translatable("codex.alvorecer.quests", d.questsCompleted));
+                if (d.activeQuests.isEmpty()) out.add(Component.translatable("codex.alvorecer.quests_none").withStyle(ChatFormatting.GRAY));
+                for (String qid : d.activeQuests.keySet()) {
+                    var q = com.alvorecer.quest.Quests.get(qid);
+                    if (q == null) continue;
+                    out.add(Component.empty());
+                    out.addAll(QuestBoardScreen.describe(minecraft.player, d, q, now));
+                }
+                if (!d.completedQuests.isEmpty()) {
+                    out.add(Component.empty());
+                    out.add(Component.translatable("codex.alvorecer.quests_done").withStyle(ChatFormatting.YELLOW));
+                    for (String qid : d.completedQuests.keySet()) out.add(Component.literal("\u2714 ").append(Component.translatable("quest.alvorecer." + qid)));
+                }
+            }
+            case "achievements" -> {
+                PlayerRpgData d = data();
+                out.add(Component.translatable("codex.alvorecer.achievements", d.achievements.size(), com.alvorecer.achievement.Achievements.ALL.size()));
+                for (String aid : com.alvorecer.achievement.Achievements.ALL) {
+                    boolean got = d.achievements.contains(aid);
+                    out.add(Component.empty());
+                    out.add(Component.literal(got ? "\u2714 " : "\u2716 ").append(Component.translatable("advancement.alvorecer." + aid))
+                            .withStyle(got ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
+                    out.add(Component.translatable("advancement.alvorecer." + aid + ".desc").withStyle(ChatFormatting.GRAY));
+                }
+            }
             case "formulas" -> {
                 if (data().level < FORMULAS_LEVEL) out.add(Component.translatable("codex.alvorecer.locked_level", FORMULAS_LEVEL).withStyle(ChatFormatting.RED));
                 else out.add(Component.translatable("codex.alvorecer.formulas"));
@@ -128,6 +175,7 @@ public class CodexScreen extends Screen {
                 }
                 out.add(Component.literal("[" + AlvorecerClient.SHEET.getTranslatedKeyMessage().getString() + "] ").append(Component.translatable(AlvorecerClient.SHEET.getName())));
                 out.add(Component.literal("[" + AlvorecerClient.CODEX.getTranslatedKeyMessage().getString() + "] ").append(Component.translatable(AlvorecerClient.CODEX.getName())));
+                out.add(Component.literal("[" + AlvorecerClient.TALENTS.getTranslatedKeyMessage().getString() + "] ").append(Component.translatable(AlvorecerClient.TALENTS.getName())));
             }
             default -> out.add(Component.translatable("codex.alvorecer." + id));
         }

@@ -44,7 +44,7 @@ public final class StatApplier {
         set(p, Attributes.LUCK, "luck", has ? 0.25 * d.mod(Stat.CHA) + (race == Race.HALFLING ? 1 : 0) : 0, Operation.ADD_VALUE);
 
         int heavy = has ? AbilityService.nonProficientArmor(p, d) : 0;
-        double speed = (race == Race.DWARF ? -0.08 : 0) - 0.05 * heavy;
+        double speed = (race == Race.DWARF ? -0.08 : 0) - 0.05 * heavy + (has ? Derived.speedBonus(d) : 0);
         set(p, Attributes.MOVEMENT_SPEED, "speed", speed, Operation.ADD_MULTIPLIED_TOTAL);
 
         set(p, Attributes.ENTITY_INTERACTION_RANGE, "reach", race == Race.HALFLING ? -0.5 : 0, Operation.ADD_VALUE);

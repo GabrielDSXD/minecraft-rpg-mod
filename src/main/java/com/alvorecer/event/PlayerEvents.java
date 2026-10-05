@@ -25,6 +25,11 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import com.alvorecer.achievement.Achievements;
+import com.alvorecer.party.Parties;
+import com.alvorecer.quest.Quests;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -53,6 +58,12 @@ public final class PlayerEvents {
         if (!(event.getEntity() instanceof ServerPlayer p)) return;
         refresh(p);
         if (!ModAttachments.get(p).hasCharacter()) ModNetwork.openScreen(p, ModNetwork.Screen.CREATION);
+        else Achievements.checkProgress(p);
+    }
+
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p) Parties.leave(p);
     }
 
     @SubscribeEvent
@@ -70,7 +81,10 @@ public final class PlayerEvents {
 
     @SubscribeEvent
     public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity() instanceof ServerPlayer p) refresh(p);
+        if (event.getEntity() instanceof ServerPlayer p) {
+            refresh(p);
+            Quests.onDimension(p, event.getTo());
+        }
     }
 
     @SubscribeEvent
@@ -122,6 +136,7 @@ public final class PlayerEvents {
                     p.displayClientMessage(Component.translatable("msg.alvorecer.new_biome", xp), true);
                     Leveling.grantXp(p, xp);
                 }
+                Achievements.checkProgress(p);
                 changed = true;
             }
         }
@@ -155,9 +170,11 @@ public final class PlayerEvents {
         LivingEntity victim = event.getEntity();
         if (victim.level().isClientSide || !(event.getSource().getEntity() instanceof ServerPlayer p)) return;
         if (!(victim instanceof Enemy) || victim instanceof Player) return;
+        PlayerRpgData d = ModAttachments.get(p);
+        if (d.hasTalent("barbarian_carnage")) d.energy = Math.min(Derived.maxEnergy(d), d.energy + 15);
         long xp = Progression.killXp(victim.getMaxHealth(), victim.getArmorValue());
         if (victim.getPersistentData().getBoolean(SPAWNER_TAG)) xp = Math.round(xp * RpgConfig.SPAWNER_XP_MULTIPLIER.get());
-        Leveling.grantXp(p, xp);
+        com.alvorecer.party.Parties.grantKillXp(p, victim, xp);
     }
 
     /** Desconto de Carisma com aldeões, aplicado depois que a tela de comércio abre (os preços são zerados ao fechar). */
@@ -182,10 +199,20 @@ public final class PlayerEvents {
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         Scheduler.tick();
+        if (event.getServer().getTickCount() % 10 == 0) Parties.tick(event.getServer());
+    }
+
+    /** Regra de saque do grupo (roda depois dos bônus de drop das profissões). */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onDropsAssign(LivingDropsEvent event) {
+        if (event.getSource().getEntity() instanceof ServerPlayer p && !(event.getEntity() instanceof Player)) {
+            Parties.assignLoot(p, new java.util.ArrayList<>(event.getDrops()));
+        }
     }
 
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
         Scheduler.clear();
+        Parties.clear();
     }
 }

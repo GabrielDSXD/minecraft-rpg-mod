@@ -103,7 +103,7 @@ public final class Abilities {
     }
 
     private static int dc(PlayerRpgData d, Stat stat) {
-        return Progression.saveDc(d.level, d.score(stat));
+        return com.alvorecer.rpg.Derived.saveDc(d, stat);
     }
 
     private static MobEffectInstance fx(Holder<MobEffect> effect, int ticks, int amp) {
@@ -306,7 +306,7 @@ public final class Abilities {
         });
 
         reg("warrior_second_wind", Resource.ENERGY, 20, 45, School.PHYSICAL, Stat.CON, false, (p, d, level, power) -> {
-            heal(p, (float) (6 * power));
+            heal(p, p, (float) (6 * power));
             burst(level, ParticleTypes.HEART, p, 6);
             sound(level, p.position(), SoundEvents.PLAYER_LEVELUP, 0.4f, 1.6f);
             return true;
@@ -396,7 +396,7 @@ public final class Abilities {
             burst(level, ParticleTypes.DAMAGE_INDICATOR, p, 20);
             sound(level, p.position(), SoundEvents.WITHER_AMBIENT, 0.7f, 0.6f);
             Scheduler.after(200, () -> {
-                if (p.isAlive() && !p.isRemoved()) heal(p, p.getMaxHealth() * 0.3f);
+                if (p.isAlive() && !p.isRemoved()) heal(p, p, p.getMaxHealth() * 0.3f);
             });
             return true;
         });
@@ -627,7 +627,7 @@ public final class Abilities {
 
         reg("cleric_heal", Resource.MANA, 20, 6, School.DIVINE, Stat.WIS, false, (p, d, level, power) -> {
             LivingEntity t = allyOrSelf(p, 20);
-            heal(t, (float) (6 * power));
+            heal(p, t, (float) (6 * power));
             burst(level, ParticleTypes.HEART, t, 6);
             sound(level, t.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 0.6f, 1.4f);
             return true;
@@ -660,7 +660,7 @@ public final class Abilities {
 
         reg("cleric_divine_intervention", Resource.MANA, 100, 300, School.DIVINE, Stat.WIS, false, (p, d, level, power) -> {
             for (LivingEntity ally : alliesAround(p, 15)) {
-                heal(ally, ally.getMaxHealth());
+                heal(p, ally, ally.getMaxHealth());
                 new ArrayList<>(ally.getActiveEffects()).stream()
                         .filter(e -> e.getEffect().value().getCategory() == MobEffectCategory.HARMFUL)
                         .forEach(e -> ally.removeEffect(e.getEffect()));
@@ -681,6 +681,7 @@ public final class Abilities {
             p.swing(InteractionHand.MAIN_HAND, true);
             damage(t, physical(p), weapon(p) * 1.2f);
             damage(t, spell(p, ModDamageTypes.RADIANT), (float) (4 * power * (isUndead(t) ? 2 : 1)));
+            if (d.hasTalent("paladin_burning_smite")) t.setRemainingFireTicks(60);
             burst(level, ParticleTypes.END_ROD, t, 20);
             sound(level, t.position(), SoundEvents.BELL_BLOCK, 0.7f, 1.5f);
             return true;
@@ -688,7 +689,7 @@ public final class Abilities {
 
         reg("paladin_lay_on_hands", Resource.MANA, 25, 30, School.DIVINE, Stat.CHA, false, (p, d, level, power) -> {
             LivingEntity t = allyOrSelf(p, 20);
-            heal(t, (float) (8 * power));
+            heal(p, t, (float) (8 * power));
             t.removeEffect(MobEffects.POISON);
             t.removeEffect(MobEffects.WITHER);
             burst(level, ParticleTypes.HEART, t, 8);
@@ -735,7 +736,8 @@ public final class Abilities {
 
     /** Pulso da Aura de Proteção: Resistência I por 2 s aos aliados em 8 blocos. */
     public static void auraPulse(ServerPlayer p) {
-        effectOnAllies(p, 8, fx(MobEffects.DAMAGE_RESISTANCE, 40, 0));
+        int amp = ModAttachments.get(p).hasTalent("paladin_shield_of_faith") ? 1 : 0;
+        effectOnAllies(p, 8, fx(MobEffects.DAMAGE_RESISTANCE, 40, amp));
         ring(p.serverLevel(), ParticleTypes.END_ROD, p.position(), 8, 32);
     }
 
@@ -761,6 +763,7 @@ public final class Abilities {
             line(level, ParticleTypes.COMPOSTER, p.getEyePosition().subtract(0, 0.2, 0), chest(t), 0.5);
             damage(t, spell(p, ModDamageTypes.NATURE), (float) (4 * power));
             if (!save(t, Stat.STR, dc(d, Stat.WIS))) control(p, t, fx(ModEffects.ROOT, 40, 0));
+            if (d.hasTalent("druid_venom_thorns")) t.addEffect(fx(MobEffects.POISON, 80, 0), p);
             burst(level, ParticleTypes.HAPPY_VILLAGER, t, 10);
             sound(level, t.position(), SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, 1f, 0.8f);
             return true;
@@ -776,6 +779,7 @@ public final class Abilities {
 
         reg("druid_bear_form", Resource.MANA, 30, 60, School.NATURE, Stat.WIS, false, (p, d, level, power) -> {
             p.addEffect(fx(ModEffects.BEAR_FORM, 400, 0));
+            if (d.hasTalent("druid_ancestral_bear")) p.addEffect(fx(MobEffects.DAMAGE_RESISTANCE, 400, 0));
             burst(level, ParticleTypes.HAPPY_VILLAGER, p, 20);
             sound(level, p.position(), SoundEvents.POLAR_BEAR_WARNING, 1f, 0.8f);
             return true;
@@ -836,7 +840,8 @@ public final class Abilities {
         });
 
         reg("bard_inspiration", Resource.MANA, 25, 30, School.ARCANE, Stat.CHA, false, (p, d, level, power) -> {
-            effectOnAllies(p, 10, fx(MobEffects.MOVEMENT_SPEED, 300, 0), fx(MobEffects.DAMAGE_BOOST, 300, 0));
+            int dur = d.hasTalent("bard_crescendo") ? 450 : 300;
+            effectOnAllies(p, 10, fx(MobEffects.MOVEMENT_SPEED, dur, 0), fx(MobEffects.DAMAGE_BOOST, dur, 0));
             ring(level, ParticleTypes.NOTE, p.position().add(0, 1, 0), 2, 12);
             sound(level, p.position(), SoundEvents.NOTE_BLOCK_CHIME.value(), 1f, 1.2f);
             return true;
@@ -867,11 +872,12 @@ public final class Abilities {
         });
 
         reg("bard_heroic_symphony", Resource.MANA, 80, 240, School.ARCANE, Stat.CHA, false, (p, d, level, power) -> {
+            int dur = d.hasTalent("bard_crescendo") ? 600 : 400;
             for (LivingEntity ally : alliesAround(p, 15)) {
-                ally.addEffect(fx(MobEffects.DAMAGE_BOOST, 400, 0), p);
-                ally.addEffect(fx(MobEffects.MOVEMENT_SPEED, 400, 0), p);
-                ally.addEffect(fx(MobEffects.DAMAGE_RESISTANCE, 400, 0), p);
-                ally.addEffect(fx(MobEffects.REGENERATION, 400, 0), p);
+                ally.addEffect(fx(MobEffects.DAMAGE_BOOST, dur, 0), p);
+                ally.addEffect(fx(MobEffects.MOVEMENT_SPEED, dur, 0), p);
+                ally.addEffect(fx(MobEffects.DAMAGE_RESISTANCE, dur, 0), p);
+                ally.addEffect(fx(MobEffects.REGENERATION, dur, 0), p);
                 if (ally != p) restore(ally, 30, 30);
                 burst(level, ParticleTypes.NOTE, ally, 10);
             }

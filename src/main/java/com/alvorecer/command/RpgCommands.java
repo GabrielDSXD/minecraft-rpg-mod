@@ -59,6 +59,18 @@ public final class RpgCommands {
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("level", IntegerArgumentType.integer(1, Progression.MAX_PROFESSION_LEVEL))
                                         .executes(c -> profLevel(c, EntityArgument.getPlayer(c, "player"), IntegerArgumentType.getInteger(c, "level"))))))
+                .then(Commands.literal("resettalents").requires(s -> s.hasPermission(2))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(c -> {
+                                    ServerPlayer p = EntityArgument.getPlayer(c, "player");
+                                    PlayerRpgData data = ModAttachments.get(p);
+                                    data.talents.clear();
+                                    data.specialization = null;
+                                    StatApplier.apply(p);
+                                    p.syncData(ModAttachments.RPG);
+                                    c.getSource().sendSuccess(() -> Component.translatable("cmd.alvorecer.resettalents", p.getDisplayName()), true);
+                                    return 1;
+                                })))
                 .then(Commands.literal("cooldowns").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(c -> {

@@ -1,6 +1,8 @@
 package com.alvorecer.rpg;
 
 import com.alvorecer.config.RpgConfig;
+import com.alvorecer.achievement.Achievements;
+import com.alvorecer.rpg.talent.Talents;
 import com.alvorecer.registry.ModAttachments;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -57,6 +59,13 @@ public final class Leveling {
                 p.sendSystemMessage(Component.translatable("msg.alvorecer.secondary_unlocked").withStyle(ChatFormatting.AQUA));
             }
             p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 0.8f);
+            if (Talents.pointsAt(d.level) > Talents.pointsAt(oldLevel)) {
+                p.sendSystemMessage(Component.translatable("msg.alvorecer.talent_point").withStyle(ChatFormatting.AQUA));
+            }
+            if (oldLevel < Talents.SPEC_LEVEL && d.level >= Talents.SPEC_LEVEL) {
+                p.sendSystemMessage(Component.translatable("msg.alvorecer.spec_unlocked").withStyle(ChatFormatting.AQUA));
+            }
+            Achievements.checkProgress(p);
         }
         p.syncData(ModAttachments.RPG);
     }
@@ -105,6 +114,7 @@ public final class Leveling {
                     Component.translatable(prof.langKey()), level).withStyle(ChatFormatting.GREEN));
             p.level().playSound(null, p.blockPosition(), SoundEvents.VILLAGER_WORK_TOOLSMITH, SoundSource.PLAYERS, 1f, 1f);
             if (prof == Profession.MINER) StatApplier.apply(p);
+            Achievements.checkProgress(p);
         }
         p.syncData(ModAttachments.RPG);
     }

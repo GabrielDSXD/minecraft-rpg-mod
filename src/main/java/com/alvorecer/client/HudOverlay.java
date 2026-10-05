@@ -41,6 +41,8 @@ public final class HudOverlay {
         drawSmall(g, font, Component.translatable("ui.alvorecer.level_short", d.level).getString(), x + 87, y + 17);
         g.pose().popPose();
 
+        renderParty(g, font);
+
         long now = mc.player.level().getGameTime();
         int size = 18, gap = 2;
         int top = h / 2 - (AbilityService.SLOT_COUNT * (size + gap)) / 2;
@@ -67,6 +69,21 @@ public final class HudOverlay {
             g.pose().scale(0.6f, 0.6f, 1);
             g.drawString(font, locked ? "Nv" + AbilityService.requiredLevel(slot) : key, (int) ((sx + size + 2) / 0.6f), (int) ((sy + 6) / 0.6f), Ui.TEXT);
             g.pose().popPose();
+        }
+    }
+
+    /** Painel do grupo no canto superior esquerdo: nome (líder com estrela), nível e vida. */
+    private static void renderParty(GuiGraphics g, Font font) {
+        var members = ClientHooks.partyMembers;
+        if (members.isEmpty()) return;
+        int y = 4;
+        g.drawString(font, Component.translatable("ui.alvorecer.party"), 4, y, Ui.GOLD);
+        y += 11;
+        for (var m : members) {
+            String name = (m.leader() ? "\u2605 " : "") + m.name() + " " + Component.translatable("ui.alvorecer.level_short", m.level()).getString();
+            g.drawString(font, name, 4, y, Ui.TEXT);
+            Ui.bar(g, 4, y + 9, 80, 4, m.health() / Math.max(1, m.maxHealth()), Ui.HEALTH);
+            y += 16;
         }
     }
 

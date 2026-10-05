@@ -1,6 +1,8 @@
 package com.alvorecer;
 
+import com.alvorecer.command.PartyCommands;
 import com.alvorecer.command.RpgCommands;
+import com.alvorecer.registry.ModBlocks;
 import com.alvorecer.config.RpgConfig;
 import com.alvorecer.event.CombatEvents;
 import com.alvorecer.event.PlayerEvents;
@@ -24,6 +26,7 @@ public class Alvorecer {
         ModAttachments.ATTACHMENTS.register(modBus);
         ModEffects.EFFECTS.register(modBus);
         ModItems.ITEMS.register(modBus);
+        ModBlocks.BLOCKS.register(modBus);
         ModItems.TABS.register(modBus);
         ModEntities.ENTITIES.register(modBus);
         modBus.addListener(ModEntities::attributes);
@@ -34,5 +37,6 @@ public class Alvorecer {
         NeoForge.EVENT_BUS.register(PlayerEvents.class);
         NeoForge.EVENT_BUS.register(ProfessionEvents.class);
         NeoForge.EVENT_BUS.addListener(RpgCommands::register);
+        NeoForge.EVENT_BUS.addListener(PartyCommands::register);
     }
 }

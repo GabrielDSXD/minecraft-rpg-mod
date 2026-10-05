@@ -34,6 +34,14 @@ public final class RpgConfig {
     public static final ModConfigSpec.IntValue EFFECT_SAVE_DC;
     public static final ModConfigSpec.BooleanValue PLAYER_SAVING_THROWS;
 
+    public static final ModConfigSpec.IntValue PARTY_MAX_SIZE;
+    public static final ModConfigSpec.BooleanValue PARTY_SHARE_XP;
+    public static final ModConfigSpec.DoubleValue PARTY_XP_BONUS;
+    public static final ModConfigSpec.IntValue PARTY_RANGE;
+    public static final ModConfigSpec.BooleanValue PARTY_FRIENDLY_FIRE;
+
+    public static final ModConfigSpec.IntValue MAX_ACTIVE_QUESTS;
+
     public static final ModConfigSpec.EnumValue<RespecMode> RESPEC_MODE;
     public static final ModConfigSpec.IntValue RESPEC_COOLDOWN_MINUTES;
 
@@ -65,6 +73,18 @@ public final class RpgConfig {
         b.comment("Testes de resistência").push("saves");
         PLAYER_SAVING_THROWS = b.comment("Jogadores fazem teste de resistência contra efeitos negativos de outras fontes.").define("playerSavingThrows", true);
         EFFECT_SAVE_DC = b.comment("CD dos testes de resistência contra efeitos negativos ambientais/de criaturas.").defineInRange("effectSaveDc", 15, 1, 40);
+        b.pop();
+
+        b.comment("Grupos de jogadores").push("party");
+        PARTY_MAX_SIZE = b.comment("Tamanho máximo de um grupo.").defineInRange("maxSize", 5, 2, 20);
+        PARTY_SHARE_XP = b.comment("XP de abates é dividido entre os membros próximos.").define("shareXp", true);
+        PARTY_XP_BONUS = b.comment("Bônus de XP por membro extra que participa da divisão (0,1 = +10%).").defineInRange("xpBonusPerMember", 0.1, 0.0, 1.0);
+        PARTY_RANGE = b.comment("Distância (blocos) para receber XP e crédito de missão do grupo.").defineInRange("range", 48, 8, 256);
+        PARTY_FRIENDLY_FIRE = b.comment("Membros do mesmo grupo podem ferir uns aos outros.").define("friendlyFire", false);
+        b.pop();
+
+        b.comment("Missões").push("quests");
+        MAX_ACTIVE_QUESTS = b.comment("Máximo de missões ativas por jogador.").defineInRange("maxActive", 5, 1, 50);
         b.pop();
 
         b.comment("Troca de raça/classe/profissão").push("respec");

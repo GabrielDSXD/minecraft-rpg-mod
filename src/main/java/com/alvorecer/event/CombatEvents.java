@@ -19,6 +19,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.EntityTypeTags;
+import com.alvorecer.party.Parties;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -65,6 +67,11 @@ public final class CombatEvents {
             event.setCanceled(true);
             return;
         }
+        if (attacker instanceof ServerPlayer ap && target instanceof ServerPlayer tp0 && ap != tp0
+                && !RpgConfig.PARTY_FRIENDLY_FIRE.get() && Parties.sameParty(ap, tp0)) {
+            event.setCanceled(true);
+            return;
+        }
 
         if (attacker instanceof ServerPlayer p && p != target) {
             amount = attackerModifiers(p, target, source, direct, amount);
@@ -107,7 +114,8 @@ public final class CombatEvents {
             }
             if (p.hasEffect(ModEffects.ORC_FURY)) m *= 1.3;
             if (p.hasEffect(ModEffects.BARBARIAN_RAGE)) m *= 1.2;
-            if (d.rpgClass == RpgClass.ROGUE && target instanceof Mob mob && mob.getTarget() != p) m *= 1.35;
+            if (d.rpgClass == RpgClass.ROGUE && target instanceof Mob mob && mob.getTarget() != p) m *= Derived.sneakMultiplier(d);
+            if (d.hasTalent("rogue_assassinate") && target.getHealth() >= target.getMaxHealth()) m *= 1.5;
             if (p.hasEffect(ModEffects.POISON_BLADES)) target.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 1), p);
             if (d.rpgClass == RpgClass.WARRIOR) d.energy = Math.min(Derived.maxEnergy(d), d.energy + 3);
         } else if (ranged) {
@@ -118,13 +126,18 @@ public final class CombatEvents {
             if (d.race == Race.ELF && held == WeaponCategory.BOW) m *= 1.1;
         }
 
-        if (d.markedTarget != null && d.markedTarget.equals(target.getUUID()) && p.level().getGameTime() < d.markedUntil) m *= 1.2;
+        if (d.markedTarget != null && d.markedTarget.equals(target.getUUID()) && p.level().getGameTime() < d.markedUntil) {
+            m *= d.hasTalent("ranger_deadly_shot") ? 1.5 : 1.2;
+        }
+        if (d.hasTalent("warrior_executioner") && target.getHealth() < target.getMaxHealth() * 0.3f) m *= 1.3;
+        if (d.hasTalent("cleric_judgment") && ModDamageTypes.isRadiant(source) && target.getType().is(EntityTypeTags.UNDEAD)) m *= 1.5;
         int hunter = Abilities.professionLevel(d, com.alvorecer.rpg.Profession.HUNTER);
         if (hunter > 0 && target instanceof Animal) m *= 1 + 0.01 * hunter;
 
         // Crítico: ataques diretos, projéteis e habilidades do jogador.
         if (p.getRandom().nextDouble() < Derived.critChance(d)) {
             m *= Derived.critMultiplier(d);
+            if (d.hasTalent("wizard_overload") && ModDamageTypes.isMagic(source)) d.mana = Math.min(Derived.maxMana(d), d.mana + 10);
             ((ServerLevel) p.level()).sendParticles(ParticleTypes.CRIT, target.getX(), target.getY() + target.getBbHeight() * 0.6,
                     target.getZ(), 12, 0.3, 0.3, 0.3, 0.2);
             p.level().playSound(null, target.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, 1.2f);
@@ -152,6 +165,8 @@ public final class CombatEvents {
         if (tp.hasEffect(ModEffects.STONESKIN)) m *= 0.6;
         if (tp.hasEffect(ModEffects.ORC_FURY)) m *= 1.2;
         if (tp.hasEffect(ModEffects.BARBARIAN_RAGE) && !ModDamageTypes.isMagic(source)) m *= 0.75;
+        m *= 1 - Derived.damageReduction(d);
+        if (d.hasTalent("warrior_unbreakable") && tp.getHealth() < tp.getMaxHealth() * 0.3f) m *= 0.75;
         return (float) (amount * m);
     }
 
@@ -172,6 +187,12 @@ public final class CombatEvents {
         if (d.rpgClass == RpgClass.BARBARIAN && event.getNewDamage() > 0) {
             d.energy = Math.min(Derived.maxEnergy(d), d.energy + event.getNewDamage() * 1.5f);
         }
+        long now = p.level().getGameTime();
+        if (d.hasTalent("rogue_elusive") && p.isAlive() && p.getHealth() < p.getMaxHealth() * 0.3f && !d.isOnCooldown("talent_rogue_elusive", now)) {
+            p.addEffect(new MobEffectInstance(ModEffects.EVASION, 60, 0));
+            d.cooldowns.put("talent_rogue_elusive", now + 1200);
+            p.displayClientMessage(Component.translatable("talent.alvorecer.rogue_elusive"), true);
+        }
     }
 
     /** Tiefling: curas recebidas -20%. */
@@ -191,7 +212,9 @@ public final class CombatEvents {
         if (!(event.getEntity() instanceof ServerPlayer p)) return;
         MobEffectInstance inst = event.getEffectInstance();
         if (inst == null || inst.getEffect().value().getCategory() != MobEffectCategory.HARMFUL) return;
-        if (p.hasEffect(ModEffects.DETERMINATION) && Abilities.isControl(inst.getEffect())) {
+        boolean unstoppable = p.hasEffect(ModEffects.BARBARIAN_RAGE) && ModAttachments.get(p).hasTalent("barbarian_unstoppable")
+                && (inst.getEffect().is(MobEffects.MOVEMENT_SLOWDOWN) || inst.getEffect().value() == ModEffects.ROOT.value());
+        if (unstoppable || (p.hasEffect(ModEffects.DETERMINATION) && Abilities.isControl(inst.getEffect()))) {
             event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
             return;
         }

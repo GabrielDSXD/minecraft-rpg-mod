@@ -74,6 +74,9 @@ public class CharacterSheetScreen extends Screen {
         }
         addRenderableWidget(Button.builder(Component.translatable("ui.alvorecer.open_codex"), b -> minecraft.setScreen(new CodexScreen()))
                 .bounds(x + W - 80, y + H - 22, 72, 16).build());
+        Component talentLabel = Component.translatable("ui.alvorecer.open_talents", com.alvorecer.rpg.talent.Talents.available(d));
+        addRenderableWidget(Button.builder(talentLabel, b -> minecraft.setScreen(new TalentScreen()))
+                .bounds(x + W - 186, y + H - 22, 102, 16).build());
     }
 
     private int lastUnspent = -1;

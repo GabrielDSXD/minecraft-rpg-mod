@@ -15,6 +15,10 @@ import com.alvorecer.rpg.RpgClass;
 import com.alvorecer.rpg.Stat;
 import com.alvorecer.rpg.StatApplier;
 import io.netty.buffer.ByteBuf;
+import com.alvorecer.achievement.Achievements;
+import com.alvorecer.quest.Quests;
+import com.alvorecer.rpg.talent.Talents;
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -39,7 +43,7 @@ public final class ModNetwork {
 
     // ------------------------------------------------------------ S2C
 
-    public enum Screen { CREATION, SHEET, CODEX }
+    public enum Screen { CREATION, SHEET, CODEX, QUEST_BOARD, TALENTS }
 
     public record OpenScreen(int screen) implements CustomPacketPayload {
         public static final Type<OpenScreen> TYPE = typeOf("open_screen");
@@ -98,6 +102,57 @@ public final class ModNetwork {
         }
     }
 
+    public record SpendTalent(String id) implements CustomPacketPayload {
+        public static final Type<SpendTalent> TYPE = typeOf("spend_talent");
+        public static final StreamCodec<ByteBuf, SpendTalent> CODEC = ByteBufCodecs.stringUtf8(64).map(SpendTalent::new, SpendTalent::id);
+
+        @Override
+        public Type<SpendTalent> type() {
+            return TYPE;
+        }
+    }
+
+    public record ChooseSpec(String id) implements CustomPacketPayload {
+        public static final Type<ChooseSpec> TYPE = typeOf("choose_spec");
+        public static final StreamCodec<ByteBuf, ChooseSpec> CODEC = ByteBufCodecs.stringUtf8(64).map(ChooseSpec::new, ChooseSpec::id);
+
+        @Override
+        public Type<ChooseSpec> type() {
+            return TYPE;
+        }
+    }
+
+    /** Ação sobre missão: 0 aceitar, 1 entregar, 2 abandonar. */
+    public record QuestAction(int action, String id) implements CustomPacketPayload {
+        public static final Type<QuestAction> TYPE = typeOf("quest_action");
+        public static final StreamCodec<ByteBuf, QuestAction> CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, QuestAction::action, ByteBufCodecs.stringUtf8(64), QuestAction::id, QuestAction::new);
+
+        @Override
+        public Type<QuestAction> type() {
+            return TYPE;
+        }
+    }
+
+    public record PartyMember(String name, float health, float maxHealth, int level, int rpgClass, boolean leader) {
+        public static final StreamCodec<ByteBuf, PartyMember> CODEC = StreamCodec.composite(
+                ByteBufCodecs.stringUtf8(32), PartyMember::name, ByteBufCodecs.FLOAT, PartyMember::health,
+                ByteBufCodecs.FLOAT, PartyMember::maxHealth, ByteBufCodecs.VAR_INT, PartyMember::level,
+                ByteBufCodecs.VAR_INT, m -> m.rpgClass() + 1, ByteBufCodecs.BOOL, PartyMember::leader,
+                (name, hp, max, lvl, cls, leader) -> new PartyMember(name, hp, max, lvl, cls - 1, leader));
+    }
+
+    /** Estado do grupo para o HUD (lista vazia = sem grupo). */
+    public record PartySync(List<PartyMember> members) implements CustomPacketPayload {
+        public static final Type<PartySync> TYPE = typeOf("party_sync");
+        public static final StreamCodec<ByteBuf, PartySync> CODEC = PartyMember.CODEC.apply(ByteBufCodecs.list(20)).map(PartySync::new, PartySync::members);
+
+        @Override
+        public Type<PartySync> type() {
+            return TYPE;
+        }
+    }
+
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar r = event.registrar("1");
         r.playToClient(OpenScreen.TYPE, OpenScreen.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.openScreen(msg.screen()));
@@ -105,6 +160,18 @@ public final class ModNetwork {
         r.playToServer(UseAbility.TYPE, UseAbility.CODEC, (msg, ctx) -> AbilityService.use((ServerPlayer) ctx.player(), msg.slot()));
         r.playToServer(AllocateStat.TYPE, AllocateStat.CODEC, ModNetwork::onAllocate);
         r.playToServer(ChooseSecondary.TYPE, ChooseSecondary.CODEC, ModNetwork::onSecondary);
+        r.playToServer(SpendTalent.TYPE, SpendTalent.CODEC, (msg, ctx) -> onSpendTalent((ServerPlayer) ctx.player(), msg.id()));
+        r.playToServer(ChooseSpec.TYPE, ChooseSpec.CODEC, (msg, ctx) -> onChooseSpec((ServerPlayer) ctx.player(), msg.id()));
+        r.playToServer(QuestAction.TYPE, QuestAction.CODEC, (msg, ctx) -> {
+            ServerPlayer p = (ServerPlayer) ctx.player();
+            switch (msg.action()) {
+                case 0 -> Quests.accept(p, msg.id());
+                case 1 -> Quests.complete(p, msg.id());
+                case 2 -> Quests.abandon(p, msg.id());
+                default -> { }
+            }
+        });
+        r.playToClient(PartySync.TYPE, PartySync.CODEC, (msg, ctx) -> com.alvorecer.client.ClientHooks.party(msg.members()));
     }
 
     public static void openScreen(ServerPlayer p, Screen screen) {
@@ -148,6 +215,7 @@ public final class ModNetwork {
                 Component.translatable(d.race.langKey()), Component.translatable(d.rpgClass.langKey()),
                 Component.translatable(d.profession.langKey())).withStyle(ChatFormatting.GOLD));
         p.sendSystemMessage(Component.translatable("msg.alvorecer.points_hint", d.unspentPoints).withStyle(ChatFormatting.YELLOW));
+        Achievements.checkProgress(p);
     }
 
     /** Distribui um ponto. Pura para testes. */
@@ -164,6 +232,29 @@ public final class ModNetwork {
         PlayerRpgData d = ModAttachments.get(p);
         if (!allocate(d, msg.stat())) return;
         StatApplier.apply(p);
+        p.syncData(ModAttachments.RPG);
+    }
+
+    public static void onSpendTalent(ServerPlayer p, String id) {
+        PlayerRpgData d = ModAttachments.get(p);
+        Talents.Failure f = Talents.canSpend(d, id);
+        if (f != null) {
+            p.displayClientMessage(Component.translatable("msg.alvorecer.talent." + f.name().toLowerCase()), true);
+            return;
+        }
+        Talents.spend(d, id);
+        if (Talents.get(id).tier() == 3) Achievements.grant(p, "capstone");
+        StatApplier.apply(p);
+        p.syncData(ModAttachments.RPG);
+    }
+
+    public static void onChooseSpec(ServerPlayer p, String id) {
+        PlayerRpgData d = ModAttachments.get(p);
+        if (!Talents.chooseSpec(d, id)) return;
+        StatApplier.apply(p);
+        Achievements.grant(p, "specialization");
+        p.sendSystemMessage(Component.translatable("msg.alvorecer.spec_chosen", Component.translatable(Talents.spec(id).nameKey()))
+                .withStyle(ChatFormatting.GOLD));
         p.syncData(ModAttachments.RPG);
     }
 
