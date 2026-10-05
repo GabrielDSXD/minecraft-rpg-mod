@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "stage=0": {
+      "model": "alvorecer:block/spike_trap_0"
+    },
+    "stage=1": {
+      "model": "alvorecer:block/spike_trap_1"
+    },
+    "stage=2": {
+      "model": "alvorecer:block/spike_trap_2"
+    }
+  }
+}

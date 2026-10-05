@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "alvorecer:block/dungeon_seal_idle",
+    "bottom": "alvorecer:block/dungeon_stone",
+    "side": "alvorecer:block/dungeon_stone"
+  }
+}

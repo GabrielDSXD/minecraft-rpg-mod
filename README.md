@@ -2,7 +2,7 @@
 
 Mod de RPG de fantasia para **Minecraft Java 1.21.1** com **NeoForge 21.1.x** (testado com 21.1.255). Funciona em singleplayer e em servidor dedicado; o mod precisa estar instalado no cliente e no servidor.
 
-A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável), **Etapa 2** (talentos, grupos, missões e conquistas), **Etapa 3** (equipamentos), **Etapa 4** (criaturas e NPCs) e **Etapa 5** (Reinos do Éter, portal e estruturas).
+A entrega é feita em etapas (status abaixo). Concluídas: **Etapa 1** (base jogável), **Etapa 2** (talentos, grupos, missões e conquistas), **Etapa 3** (equipamentos), **Etapa 4** (criaturas e NPCs), **Etapa 5** (Reinos do Éter, portal e estruturas) e **Etapa 6** (masmorras).
 
 ## Compilar
 
@@ -82,17 +82,23 @@ Comandos (permissão 2): `/rpg info [jogador]`, `/rpg reset <jogador>`, `/rpg se
 - Estruturas com frequência configurável (`worldgen.*`, 0 a 1): Acampamento Goblin, Torre de Vigia e Santuário do Alvorecer (NPCs, Mural, Bancada) no mundo principal; Ruínas Etéreas e Arena Celeste (8 pilares, sentinelas) no Éter. Baús com loot próprio.
 - Missão "Além do Alvorecer", conquistas "A Primeira Luz" e "Reinos do Éter", capítulo "Mundo e Portal" no Codex.
 
+### Etapa 6 — masmorras (concluída)
+- Estrutura procedural (`alvorecer:dungeon` no mundo principal e `alvorecer:aether_dungeon` no Éter, frequência `worldgen.dungeon`): entrada na superfície, poço com escada de 24 blocos e 7 salas de 15×9×15 encadeadas por passeio aleatório em grade — início, combate, armadilha, enigma, combate, campeão e tesouro.
+- Combate: o Selo da Masmorra desperta com um jogador a 7 blocos e lança 2 ondas; campeão: Sentinela de Pedra brilhante com o triplo de vida e escoltas. Portões Selados (indestrutíveis) só abrem ao vencer a sala; o desafio recomeça se todos se afastarem por 30 s.
+- Armadilha: piso de Placas de Espinhos (aviso de 0,6 s, 6 de dano; agachado não dispara) e teias. Enigma: 4 Runas Giratórias que devem copiar os Glifos Rúnicos da parede (símbolos sorteados por masmorra).
+- Grupo e dificuldade: o selo conta os jogadores a 24 blocos — cada um além do primeiro adiciona criaturas por onda e vida/dano (`dungeons.*`); solo usa só a base.
+- Recompensas: XP de abate pela regra do grupo; XP de conclusão para cada jogador presente (sem divisão); Relicário com saque individual uma vez por jogador (sempre 1 Fragmento do Sigilo); baús comuns. Missão "Explorador das Profundezas", conquista "Campeão Derrubado", capítulo "Masmorras" no Codex.
+
 ### Testes (estado atual)
-- `./gradlew build`: 36 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas), dados do mundo (estruturas → moldes, conjuntos, tags e loot; biomas, ordem das features, temperatura sem neve nas ilhas, dimensão, missão e conquistas). Todos passando.
-- `./gradlew runGameTestServer`: 19 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental, NPCs (comércio, proteção e missões), Chave do Alvorecer (moldura incompleta recusada, acendimento, durabilidade, conquista, busca por POI, quebra da moldura apaga o portal) e portal de retorno (construção, saída na plataforma, terreno de chunk não carregado). Todos passando. O GameTest usa um mundo plano próprio em `run/gametest`, sem as dimensões de datapack; a viagem até o Éter é validada no servidor dedicado.
-- Servidor dedicado inicia sem erros; cliente conectado ao servidor dedicado testado (Etapas 1 e 5). Etapa 5 no servidor dedicado: `locate` encontra os 4 biomas e as 5 estruturas geradas naturalmente; portal aceso com a chave pelo cliente, viagem ao Éter com portal de retorno sobre uma ilha, conquistas concedidas; Santuário e Arena Celeste vistos no jogo.
+- `./gradlew build`: 40 testes JUnit — fórmulas, persistência, validação de habilidades e custos, traduções, talentos, divisão de XP, missões, conquistas, equipamentos (textos, modelos, categorias, receitas, Cajado Arcano), criaturas (textos, ovos, loot, atributos, sons e legendas, texturas), dados do mundo (estruturas → moldes, conjuntos, tags e loot; biomas, ordem das features, temperatura sem neve nas ilhas, dimensão, missão e conquistas), masmorras (planta em 300 sementes, fórmulas de escala, moldes NBT com selos, runas alinhadas aos glifos, piso de espinhos, relicário e abertura do poço; textos, saque com fragmento). Todos passando.
+- `./gradlew runGameTestServer`: 26 GameTests em servidor real — habilidades (custo, recarga, linha de visão, nível), passivas, persistência, talentos, grupo, missão completa, bônus de equipamento e conjunto, habilidade de arma especial, Bancada de Ofício, todas as criaturas nascendo e agindo sem erro, golpe telegrafado da Sentinela, bloqueio frontal do Esqueleto Guerreiro, imunidades do Elemental, NPCs (comércio, proteção e missões), Chave do Alvorecer (moldura incompleta recusada, acendimento, durabilidade, conquista, busca por POI, quebra da moldura apaga o portal) e portal de retorno (construção, saída na plataforma, terreno de chunk não carregado), masmorras (selo com 2 ondas, portão abrindo e XP de conclusão; escala com 2 jogadores; campeão; enigma de runas; espinhos com aviso; relicário uma vez por jogador; sala gerada dentro de água continua seca). Todos passando. O GameTest usa um mundo plano próprio em `run/gametest`, sem as dimensões de datapack; a viagem até o Éter é validada no servidor dedicado.
+- Servidor dedicado inicia sem erros; cliente conectado ao servidor dedicado testado (Etapas 1 e 5). Etapa 5 no servidor dedicado: `locate` encontra os 4 biomas e as 5 estruturas geradas naturalmente; portal aceso com a chave pelo cliente, viagem ao Éter com portal de retorno sobre uma ilha, conquistas concedidas; Santuário e Arena Celeste vistos no jogo. Etapa 6 no servidor dedicado: masmorras localizadas nas duas dimensões; entrada, poço, salas e portões vistos no cliente; desafio de combate despertado em sobrevivência ("Onda 1 de 2"), portão aberto ao vencer, espinhos disparados ao pisar e Relicário entregando a parte do jogador.
 - Cliente singleplayer testado pela interface: criação, HUD, ficha, Codex, habilidades, comandos, persistência, tela de talentos (gastar pontos, especialização), Mural de Missões (aceitar e entregar missão de coleta) e avisos de conquista.
 - Cliente: equipamentos (aba criativa, tooltips, armadura no corpo, Onda Solar, Bancada de Ofício), todas as criaturas e NPCs renderizando, diálogo e comércio com NPC.
 - Ainda não testado visualmente: o painel do grupo com dois clientes reais, o voo das Asas Prismáticas e a animação de puxar o arco.
 
 ## Próximas etapas (ainda não implementadas)
 
-6. Masmorras com salas, armadilhas, enigmas e dificuldade por tamanho de grupo.
 7. Chefe Guardião do Primeiro Alvorecer (3 fases) e o Coração do Alvorecer.
 
 ## Estrutura

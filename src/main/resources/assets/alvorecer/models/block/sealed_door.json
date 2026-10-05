@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "alvorecer:block/sealed_door"
+  },
+  "render_type": "minecraft:cutout"
+}

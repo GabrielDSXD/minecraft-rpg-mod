@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "target=0": {
+      "model": "alvorecer:block/rune_glyph_0"
+    },
+    "target=1": {
+      "model": "alvorecer:block/rune_glyph_1"
+    },
+    "target=2": {
+      "model": "alvorecer:block/rune_glyph_2"
+    },
+    "target=3": {
+      "model": "alvorecer:block/rune_glyph_3"
+    }
+  }
+}

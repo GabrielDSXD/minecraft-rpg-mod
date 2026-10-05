@@ -61,6 +61,7 @@ public final class Quests {
         q("first_steps", Category.EXPLORATION, 1, Objective.BIOMES, "", 5, 150, 0, false, item("minecraft:map", 1));
         q("wanderer", Category.EXPLORATION, 5, Objective.BIOMES, "", 15, 600, 0, false, item("minecraft:spyglass", 1));
         q("into_the_nether", Category.EXPLORATION, 5, Objective.VISIT_DIMENSION, "minecraft:the_nether", 1, 400, 0, false, item("minecraft:fire_charge", 4));
+        q("dungeon_delver", Category.EXPLORATION, 10, Objective.CLEAR_DUNGEON, "alvorecer:dungeon_champion", 1, 1500, 0, false, item("alvorecer:dawn_sigil_fragment", 1));
         q("into_the_aether", Category.EXPLORATION, 8, Objective.VISIT_DIMENSION, "alvorecer:aether_realms", 1, 1200, 0, false, item("alvorecer:aurorite_gem", 2));
         q("the_end", Category.EXPLORATION, 15, Objective.VISIT_DIMENSION, "minecraft:the_end", 1, 2000, 0, false, item("minecraft:ender_pearl", 4));
         // Coleta (entrega no mural)
@@ -114,7 +115,7 @@ public final class Quests {
     /** Progresso atual (funciona no cliente e no servidor). */
     public static int progress(Player p, PlayerRpgData d, Quest q) {
         int raw = switch (q.objective()) {
-            case KILL, VISIT_DIMENSION -> d.activeQuests.getOrDefault(q.id(), 0);
+            case KILL, VISIT_DIMENSION, CLEAR_DUNGEON -> d.activeQuests.getOrDefault(q.id(), 0);
             case GATHER -> countItems(p, q);
             case REACH_LEVEL -> d.level;
             case PROFESSION_LEVEL -> d.professionLevel;
@@ -214,6 +215,19 @@ public final class Quests {
         for (var e : d.activeQuests.entrySet()) {
             Quest q = ALL.get(e.getKey());
             if (q == null || q.objective() != Objective.KILL || e.getValue() >= q.count() || !matchesEntity(q, victim.getType())) continue;
+            e.setValue(e.getValue() + 1);
+            changed = true;
+            if (e.getValue() >= q.count()) msg(p, "ready", Component.translatable(q.nameKey()));
+        }
+        if (changed) p.syncData(ModAttachments.RPG);
+    }
+
+    public static void onDungeonClear(ServerPlayer p) {
+        PlayerRpgData d = ModAttachments.get(p);
+        boolean changed = false;
+        for (var e : d.activeQuests.entrySet()) {
+            Quest q = ALL.get(e.getKey());
+            if (q == null || q.objective() != Objective.CLEAR_DUNGEON || e.getValue() >= q.count()) continue;
             e.setValue(e.getValue() + 1);
             changed = true;
             if (e.getValue() >= q.count()) msg(p, "ready", Component.translatable(q.nameKey()));

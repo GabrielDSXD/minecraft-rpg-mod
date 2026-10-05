@@ -44,6 +44,12 @@ public final class RpgConfig {
     public static final ModConfigSpec.DoubleValue CREATURE_SPAWN_RATE;
     private static final java.util.Map<String, ModConfigSpec.DoubleValue> STRUCTURES = new java.util.LinkedHashMap<>();
 
+    public static final ModConfigSpec.IntValue DUNGEON_MOBS_PER_PLAYER;
+    public static final ModConfigSpec.DoubleValue DUNGEON_HEALTH_PER_PLAYER;
+    public static final ModConfigSpec.DoubleValue DUNGEON_DAMAGE_PER_PLAYER;
+    public static final ModConfigSpec.IntValue DUNGEON_CLEAR_XP;
+    public static final ModConfigSpec.IntValue DUNGEON_CHAMPION_XP;
+
     public static final ModConfigSpec.EnumValue<RespecMode> RESPEC_MODE;
     public static final ModConfigSpec.IntValue RESPEC_COOLDOWN_MINUTES;
 
@@ -96,6 +102,14 @@ public final class RpgConfig {
                 {"ruins", "Ruínas Etéreas (Reinos do Éter)"}, {"arena", "Arenas Celestes (Reinos do Éter)"}}) {
             STRUCTURES.put(s[0], b.comment(s[1]).defineInRange(s[0], 1.0, 0.0, 1.0));
         }
+        b.pop();
+
+        b.comment("Masmorras: escala pelo número de jogadores a até 24 blocos do selo quando o encontro começa").push("dungeons");
+        DUNGEON_MOBS_PER_PLAYER = b.comment("Criaturas a mais por jogador além do primeiro, em cada onda.").defineInRange("mobsPerExtraPlayer", 2, 0, 20);
+        DUNGEON_HEALTH_PER_PLAYER = b.comment("Vida extra das criaturas por jogador além do primeiro (0,35 = +35%).").defineInRange("healthPerExtraPlayer", 0.35, 0.0, 5.0);
+        DUNGEON_DAMAGE_PER_PLAYER = b.comment("Dano extra das criaturas por jogador além do primeiro.").defineInRange("damagePerExtraPlayer", 0.15, 0.0, 5.0);
+        DUNGEON_CLEAR_XP = b.comment("XP de classe para cada jogador presente ao vencer uma sala de combate (enigma: metade).").defineInRange("roomClearXp", 80, 0, 100000);
+        DUNGEON_CHAMPION_XP = b.comment("XP de classe para cada jogador presente ao derrotar o campeão.").defineInRange("championXp", 400, 0, 100000);
         b.pop();
 
         b.comment("Missões").push("quests");

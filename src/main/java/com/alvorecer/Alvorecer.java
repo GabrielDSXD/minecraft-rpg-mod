@@ -31,6 +31,8 @@ public class Alvorecer {
         ModGear.init();
         com.alvorecer.registry.ModMobs.init();
         com.alvorecer.registry.ModWorld.init();
+        com.alvorecer.registry.ModDungeon.init();
+        com.alvorecer.registry.ModDungeon.BLOCK_ENTITIES.register(modBus);
         com.alvorecer.registry.ModWorld.POI.register(modBus);
         com.alvorecer.registry.ModWorld.STRUCTURE_TYPES.register(modBus);
         com.alvorecer.registry.ModWorld.PIECES.register(modBus);

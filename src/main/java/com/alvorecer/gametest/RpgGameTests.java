@@ -477,6 +477,167 @@ public class RpgGameTests {
         h.succeed();
     }
 
+    // ------------------------------------------------------------ Etapa 6: masmorras
+
+    private static com.alvorecer.dungeon.SealBlockEntity seal(GameTestHelper h, com.alvorecer.dungeon.SealBlock.Kind kind) {
+        h.setBlock(3, 1, 3, com.alvorecer.registry.ModDungeon.SEAL.get().defaultBlockState().setValue(com.alvorecer.dungeon.SealBlock.KIND, kind));
+        return (com.alvorecer.dungeon.SealBlockEntity) h.getBlockEntity(new BlockPos(3, 1, 3));
+    }
+
+    private static com.alvorecer.dungeon.SealBlock.Phase phase(GameTestHelper h) {
+        return h.getBlockState(new BlockPos(3, 1, 3)).getValue(com.alvorecer.dungeon.SealBlock.PHASE);
+    }
+
+    private static void killWave(GameTestHelper h, com.alvorecer.dungeon.SealBlockEntity be) {
+        for (UUID id : be.mobs()) {
+            var e = h.getLevel().getEntity(id);
+            if (e != null) e.kill();
+        }
+    }
+
+    // Lotes próprios: o selo conta todos os jogadores a 24 blocos, inclusive os de testes vizinhos do mesmo lote
+    @GameTest(template = "arena", timeoutTicks = 500, batch = "dungeon_waves")
+    public static void dungeonSealRunsWavesThenOpensDoors(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(1.5, 2, 1.5));
+        p.setInvulnerable(true);
+        PlayerRpgData d = ModAttachments.get(p);
+        var be = seal(h, com.alvorecer.dungeon.SealBlock.Kind.COMBAT);
+        h.setBlock(5, 2, 5, com.alvorecer.registry.ModDungeon.SEALED_DOOR.get());
+        long[] xpBefore = new long[1];
+        h.startSequence()
+                .thenWaitUntil(() -> h.assertTrue(be.wave() == 1 && be.mobs().size() == 3, "onda 1 com 3 criaturas (solo)"))
+                .thenExecute(() -> {
+                    h.assertTrue(phase(h) == com.alvorecer.dungeon.SealBlock.Phase.ACTIVE, "selo ativo");
+                    h.assertBlockPresent(com.alvorecer.registry.ModDungeon.SEALED_DOOR.get(), new BlockPos(5, 2, 5));
+                    killWave(h, be);
+                })
+                .thenWaitUntil(() -> h.assertTrue(be.wave() == 2 && be.mobs().size() == 3, "onda 2"))
+                .thenExecute(() -> {
+                    xpBefore[0] = d.xp + d.level * 1_000_000L;
+                    killWave(h, be);
+                })
+                .thenWaitUntil(() -> h.assertTrue(phase(h) == com.alvorecer.dungeon.SealBlock.Phase.CLEARED, "sala vencida"))
+                .thenExecute(() -> {
+                    h.assertBlockNotPresent(com.alvorecer.registry.ModDungeon.SEALED_DOOR.get(), new BlockPos(5, 2, 5));
+                    h.assertTrue(d.xp + d.level * 1_000_000L > xpBefore[0], "XP de conclusão");
+                    leave(h, p);
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 100, batch = "dungeon_scale")
+    public static void dungeonSealScalesWithPlayers(GameTestHelper h) {
+        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(1.5, 2, 1.5));
+        ServerPlayer b = player(h, Race.ELF, RpgClass.RANGER, new Vec3(5.5, 2, 5.5));
+        a.setInvulnerable(true);
+        b.setInvulnerable(true);
+        var be = seal(h, com.alvorecer.dungeon.SealBlock.Kind.COMBAT);
+        h.succeedWhen(() -> {
+            h.assertTrue(be.players() == 2 && be.mobs().size() == 5, "2 jogadores: 3 + 2 criaturas, veio " + be.mobs().size());
+            var mob = (net.minecraft.world.entity.Mob) h.getLevel().getEntity(be.mobs().get(0));
+            double base = mob.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
+            h.assertTrue(Math.abs(mob.getMaxHealth() - base * 1.35) < 0.01, "vida +35%: " + mob.getMaxHealth() + " de " + base);
+            leave(h, a);
+            leave(h, b);
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 60, batch = "dungeon_champion")
+    public static void dungeonChampionIsStrongerAndGlows(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(1.5, 2, 1.5));
+        p.setInvulnerable(true);
+        var be = seal(h, com.alvorecer.dungeon.SealBlock.Kind.CHAMPION);
+        h.succeedWhen(() -> {
+            h.assertTrue(be.mobs().size() == 2, "campeão + 1 criatura (solo)");
+            var champion = (net.minecraft.world.entity.Mob) h.getLevel().getEntity(be.mobs().get(0));
+            h.assertTrue(champion instanceof com.alvorecer.entity.mob.StoneSentinelEntity && champion.hasCustomName(), "campeão nomeado");
+            h.assertTrue(champion.getMaxHealth() >= 80 * 3 - 0.01 && champion.hasEffect(MobEffects.GLOWING), "triplo de vida e brilho");
+            leave(h, p);
+        });
+    }
+
+    @GameTest(template = "arena")
+    public static void runePuzzleOpensDoorWhenAllMatch(GameTestHelper h) {
+        ServerPlayer p = player(h, Race.HUMAN, RpgClass.WIZARD, new Vec3(3.5, 2, 3.5));
+        seal(h, com.alvorecer.dungeon.SealBlock.Kind.PUZZLE);
+        var rune = com.alvorecer.registry.ModDungeon.RUNE.get().defaultBlockState();
+        h.setBlock(1, 2, 1, rune.setValue(com.alvorecer.dungeon.RuneBlock.TARGET, 2));
+        h.setBlock(5, 2, 1, rune.setValue(com.alvorecer.dungeon.RuneBlock.TARGET, 1));
+        h.setBlock(3, 2, 5, com.alvorecer.registry.ModDungeon.SEALED_DOOR.get());
+        h.useBlock(new BlockPos(1, 2, 1), p);
+        h.useBlock(new BlockPos(1, 2, 1), p);
+        h.assertBlockProperty(new BlockPos(1, 2, 1), com.alvorecer.dungeon.RuneBlock.RUNE, 2);
+        h.assertBlockPresent(com.alvorecer.registry.ModDungeon.SEALED_DOOR.get(), new BlockPos(3, 2, 5));
+        h.useBlock(new BlockPos(5, 2, 1), p);
+        h.assertBlockNotPresent(com.alvorecer.registry.ModDungeon.SEALED_DOOR.get(), new BlockPos(3, 2, 5));
+        h.assertTrue(phase(h) == com.alvorecer.dungeon.SealBlock.Phase.CLEARED, "enigma resolvido");
+        leave(h, p);
+        h.succeed();
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 80)
+    public static void spikeTrapWarnsThenPierces(GameTestHelper h) {
+        var spike = com.alvorecer.registry.ModDungeon.SPIKE_TRAP.get();
+        h.setBlock(3, 1, 3, spike);
+        var pig = h.spawnWithNoFreeWill(EntityType.PIG, new BlockPos(3, 2, 3));
+        BlockPos abs = h.absolutePos(new BlockPos(3, 1, 3));
+        spike.stepOn(h.getLevel(), abs, h.getLevel().getBlockState(abs), pig);
+        h.assertBlockProperty(new BlockPos(3, 1, 3), com.alvorecer.dungeon.SpikeTrapBlock.STAGE, 1);
+        h.assertTrue(pig.getHealth() == pig.getMaxHealth(), "aviso ainda não fere");
+        h.runAfterDelay(com.alvorecer.dungeon.SpikeTrapBlock.WARN_TICKS + 1, () -> {
+            h.assertBlockProperty(new BlockPos(3, 1, 3), com.alvorecer.dungeon.SpikeTrapBlock.STAGE, 2);
+            h.assertTrue(pig.getHealth() <= pig.getMaxHealth() - 5.9f, "espinhos perfuram: " + pig.getHealth());
+            h.runAfterDelay(com.alvorecer.dungeon.SpikeTrapBlock.UP_TICKS + 1, () -> {
+                // Recolheu e, com o porco ainda em cima, disparou de novo: ficar parado continua ferindo
+                h.assertBlockProperty(new BlockPos(3, 1, 3), com.alvorecer.dungeon.SpikeTrapBlock.STAGE, 1);
+                h.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "arena")
+    public static void vaultGivesEachPlayerOneShare(GameTestHelper h) {
+        h.setBlock(3, 2, 3, com.alvorecer.registry.ModDungeon.VAULT.get());
+        var vault = (com.alvorecer.dungeon.VaultBlockEntity) h.getBlockEntity(new BlockPos(3, 2, 3));
+        ServerPlayer a = player(h, Race.HUMAN, RpgClass.WARRIOR, new Vec3(1.5, 2, 1.5));
+        ServerPlayer b = player(h, Race.DWARF, RpgClass.CLERIC, new Vec3(5.5, 2, 5.5));
+        var fragment = com.alvorecer.registry.ModDungeon.SIGIL_FRAGMENT.get();
+        h.assertTrue(vault.claim(a) && a.getInventory().countItem(fragment) == 1, "primeira parte com fragmento");
+        h.assertFalse(vault.claim(a), "uma vez por jogador");
+        h.assertTrue(a.getInventory().countItem(fragment) == 1, "sem saque duplicado");
+        h.assertTrue(vault.claim(b) && b.getInventory().countItem(fragment) == 1, "cada membro tem a sua parte");
+        leave(h, a);
+        leave(h, b);
+        h.succeed();
+    }
+
+    /** Sala gerada dentro de água (aquífero): nada alagado por dentro, lanternas secas. */
+    @GameTest(template = "arena", timeoutTicks = 60, batch = "dungeon_water")
+    public static void dungeonRoomOverWaterStaysDry(GameTestHelper h) {
+        var level = h.getLevel();
+        BlockPos origin = h.absolutePos(new BlockPos(0, 2, 12));
+        // Água até a altura do teto (acima dele, no mundo real, fica o poço da escada)
+        for (BlockPos p : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(15, 8, 15))) {
+            level.setBlock(p, Blocks.WATER.defaultBlockState(), 2);
+        }
+        var room = new com.alvorecer.world.DungeonStructure.RoomPiece(level.getStructureManager(),
+                com.alvorecer.world.DungeonStructure.Room.START.template(), origin);
+        room.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), level.random,
+                room.getBoundingBox(), new net.minecraft.world.level.ChunkPos(origin), origin);
+        h.runAfterDelay(30, () -> {
+            for (BlockPos p : BlockPos.betweenClosed(origin.offset(1, 1, 1), origin.offset(13, 7, 13))) {
+                if (!level.getFluidState(p).isEmpty()) h.fail("água dentro da sala em " + p.immutable());
+            }
+            var lantern = level.getBlockState(origin.offset(2, 7, 7));
+            h.assertTrue(lantern.getBlock() instanceof net.minecraft.world.level.block.LanternBlock && !lantern.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED),
+                    "lanterna seca: " + lantern);
+            for (BlockPos p : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(15, 9, 15))) {
+                level.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
+            }
+            h.succeed();
+        });
+    }
+
     private static final class StoneSentinelEntityTicks {
         static final int WINDUP = com.alvorecer.entity.mob.StoneSentinelEntity.SLAM_WINDUP;
     }

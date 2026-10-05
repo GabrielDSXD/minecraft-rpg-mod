@@ -25,7 +25,9 @@ public record Quest(String id, Category category, int minLevel, Objective object
         /** Descobrir N biomas. */
         BIOMES,
         /** Entrar numa dimensão. */
-        VISIT_DIMENSION
+        VISIT_DIMENSION,
+        /** Derrotar campeões de masmorra (crédito para quem está presente). */
+        CLEAR_DUNGEON
     }
 
     public record RewardItem(String id, int count) {
@@ -44,6 +46,6 @@ public record Quest(String id, Category category, int minLevel, Objective object
 
     /** Objetivos cujo progresso é guardado (os outros são calculados na hora). */
     public boolean tracked() {
-        return objective == Objective.KILL || objective == Objective.VISIT_DIMENSION;
+        return objective == Objective.KILL || objective == Objective.VISIT_DIMENSION || objective == Objective.CLEAR_DUNGEON;
     }
 }

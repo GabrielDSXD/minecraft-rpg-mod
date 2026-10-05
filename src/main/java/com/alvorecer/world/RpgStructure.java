@@ -72,7 +72,9 @@ public class RpgStructure extends Structure {
         }
 
         private static StructurePlaceSettings settings(Rotation rotation) {
-            return new StructurePlaceSettings().setRotation(rotation).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+            return new StructurePlaceSettings().setRotation(rotation).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
+                    // Lanternas colocadas sobre água de aquífero não viram fontes de água dentro da sala
+                    .setLiquidSettings(net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings.IGNORE_WATERLOGGING);
         }
 
         @Override

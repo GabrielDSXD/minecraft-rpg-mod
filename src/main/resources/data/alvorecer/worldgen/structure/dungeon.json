@@ -1,0 +1,7 @@
+{
+  "type": "alvorecer:dungeon",
+  "biomes": "#alvorecer:has_structure/dungeon",
+  "step": "underground_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "phase=idle": {
+      "model": "alvorecer:block/dungeon_seal_idle"
+    },
+    "phase=active": {
+      "model": "alvorecer:block/dungeon_seal_active"
+    },
+    "phase=cleared": {
+      "model": "alvorecer:block/dungeon_seal_cleared"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "alvorecer:block/dungeon_rune_3"
+  }
+}
